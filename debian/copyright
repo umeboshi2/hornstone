@@ -1,0 +1,11 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: chert
+Source: <url://example.com>
+
+Files: *
+Copyright: None
+License: None
+
+License: None
+    There is no license.
+
