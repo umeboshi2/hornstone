@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+import os, sys
+import hashlib
+
+from useless.base.path import path
+
+def get_keybase(filename):
+    return filename.basename()
+
+def get_md5sum(key):
+    m = hashlib.md5()
+    m.update(key)
+    return m.hexdigest()
+
+
+def get_topdirs(md5sum):
+    return md5sum[:3], md5sum[3:6]
+
+
+def make_new_link_frag(oldlink):
+    key = get_keybase(oldlink)
+    m = get_md5sum(key)
+    first, second = get_topdirs(m)
+    return os.path.join(first, second, key, key)
+
+def new_link(oldlink, prefix='/annex'):
+    return os.path.join(prefix, make_new_link_frag(oldlink))
+
+def make_linkdir(src, dest, prefix='/annex'):
+    src = path(src)
+    dest = path(dest)
+    for node in src.walk():
+        if not node.isdir():
+            newlink = new_link(node.readlink(), prefix=prefix)
+            rp = src.relpathto(node)
+            d = dest / rp
+            dn = d.dirname()
+            if not dn.exists():
+                dn.makedirs()
+            os.symlink(newlink, d)
+            
+                
+            
+            
+
+
+#here = path.getcwd()
+#for node in here.walk():
+#    if not node.isdir():
+#        #print node.readlink()
+#        key = get_keybase(node.readlink())
+#        #print get_topdirs(get_md5sum(key)), key
+#        print new_link(node.readlink())
+        
+                                 
+        
+        
+    
+#print __file__
+
+
+if __name__ == '__main__':
+    make_linkdir(sys.argv[1], sys.argv[2], '/shares/annex')
+    
+    
