@@ -1,0 +1,100 @@
+#!/usr/bin/python
+import os, sys
+from md5 import md5
+from xattr import xattr
+from optparse import OptionParser
+
+BLOCK_SIZE = 1024
+attribute_name = 'user.md5sum'
+
+parser = OptionParser()
+
+parser.add_option('-c', '--check', action='store_true', dest='check',
+                  default=False)
+
+parser.add_option('-v', '--verbose', action='store_true', dest='verbose',
+                  default=False)
+
+# report on md5sums actually being set
+parser.add_option('-W', '--what-is-set', action='store_true', dest='what_is_set',
+                  default=False)
+
+# set this to keep from bombing on unwritable files
+parser.add_option('-S', '--skip-unwritable', action='store_true', dest='skip_unwritable',
+                  default=False)
+
+# set this to correct a faulty md5sum
+# use this only if you modified the file and are very sure of its integrity
+# if used with the check option, nothing happens.
+parser.add_option('--correct', action='store_true', dest='correct',
+                  default=False)
+
+opts, args = parser.parse_args(sys.argv[1:])
+
+def md5sum(afile):
+    """returns the standard md5sum hexdigest
+    for a file object"""
+    m = md5()
+    block = afile.read(BLOCK_SIZE)
+    while block:
+        m.update(block)
+        block = afile.read(BLOCK_SIZE)
+    return m.hexdigest()
+
+def get_md5sums(xobject):
+    att_md5 = xf.get(attribute_name)
+    real_md5 = md5sum(file(xobject.obj))
+    return att_md5, real_md5
+    
+# xobject is  xattr(filename)
+def check_md5sum(xobject):
+    att, real = get_md5sums(xobject)
+    return att == real
+
+fileargs = []
+for arg in args:
+    if os.path.isdir(arg):
+        if opts.verbose:
+            print arg, 'is a directory, skipping.'
+    elif os.path.islink(arg):
+        if opts.verbose:
+            print arg, 'is a symlink, skipping.'
+    else:
+        fileargs.append(arg)
+for arg in fileargs:
+    xf = xattr(arg)
+    haskey = xf.has_key(attribute_name)
+    if opts.check and not haskey:
+        print xf.obj, 'is not set.'
+        sys.exit(1)
+    if not haskey:
+        if os.access(xf.obj, os.W_OK):
+            if opts.verbose or opts.what_is_set:
+                print 'setting md5sum for', xf.obj
+            md = md5sum(file(xf.obj))
+            xf.set(attribute_name, md)
+        elif not opts.skip_unwritable:
+            print xf.obj, 'is unwritable, exiting.'
+            sys.exit(1)
+        elif opts.skip_unwritable and opts.verbose:
+            print xf.obj, 'is unwritable, skipping.'
+    elif opts.check:
+        if opts.verbose:
+            print 'checking md5sum for', xf.obj
+        if check_md5sum(xf):
+            print xf.obj, 'OK'
+        else:
+            print xf.obj, 'FAILED'
+    elif opts.correct:
+        att, real = get_md5sums(xf)
+        if att != real:
+            print 'correcting md5sum for', xf.obj
+            xf.set(attribute_name, real)
+        else:
+            if opts.verbose:
+                print 'md5sum matches for', xf.obj
+    else:
+        if opts.verbose:
+            print xf.obj, 'already set'
+        
+        

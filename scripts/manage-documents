@@ -1,0 +1,194 @@
+#!/usr/bin/env python
+import os, sys
+from optparse import OptionParser
+import tarfile
+
+# this module is available in python-magic (part of file package)
+# will be using this eventually
+#import magic
+
+parser = OptionParser()
+
+# going to update these options eventually
+# we want to automatically extract managed documents
+
+# this option will be deprecated, as we want to extract managed
+# documents by default (for safety's sake)
+parser.add_option('-e', '--extract', action='store_true', dest='extract',
+                  default=False)
+
+
+parser.add_option('-r', '--remove', action='store_true', dest='remove',
+                  default=False)
+
+# this creates a managed document
+# managed documents are in extracted directories
+parser.add_option('-c', '--create', action='store_true', dest='create',
+                  default=False)
+
+# this prepares managed documents from the extracted directories
+# by default by default extracted directories without prepared documents
+# will be prepared
+parser.add_option('-p', '--prepare', action='store_true', dest='prepare',
+                  default=False)
+
+opts, args = parser.parse_args(sys.argv[1:])
+
+# use magic cookie to determine file type
+#magcookie = magic.open(magic.MAGIC_NONE)
+#magcookie.load()
+
+# instead of magic cookies, i will first use filename extensions
+TARGZ_EXTENSIONS = ['kdi', 'kpm']
+STAROFFICE_EXTENSIONS = ['sxd', 'sxw', 'stw', 'std', 'sti']
+OASIS_DOCUMENT_EXTENSIONS = ['odt', 'odp', 'ods', 'odg', 'odf', 'odc', 'odi', 'odm']
+OASIS_TEMPLATE_EXTENSIONS = ['ott', 'otp', 'ots', 'otg', 'otf', 'otc', 'oti', 'oth']
+OASIS_EXTENSIONS = OASIS_DOCUMENT_EXTENSIONS + OASIS_TEMPLATE_EXTENSIONS
+BASE_ZIP_EXTENSIONS = ['zip', 'jar']
+ZIP_EXTENSIONS = BASE_ZIP_EXTENSIONS + OASIS_EXTENSIONS + STAROFFICE_EXTENSIONS
+
+
+
+def _export_extracted_dir(cwd, extracteddir):
+    here = cwd
+    exporteddir = '%s-exported' % extracteddir
+    os.system('svn export %s %s' % (extracteddir, exporteddir))
+    exportpath = os.path.join(here, exporteddir)
+    return exportpath
+
+def _create_zip_doc(cwd, exportpath, filename):
+    os.chdir(exportpath)
+    os.system('zip -q -r ../%s .' % filename)
+    os.chdir(cwd)
+
+def _create_targz_dotdir(cwd, exportpath, filename):
+    os.chdir(exportpath)
+    tar = tarfile.open('../%s' % filename, 'w:gz')
+    tar.add('.', recursive=True)
+    os.chdir(cwd)
+
+def _extract_zip_doc(filename):
+    cmd = 'unzip -q -d %s.extracted -o %s' % (filename, filename)
+    os.system(cmd)
+
+def _extract_targz_dotdir(filename):
+    here = os.getcwd()
+    extracteddir = '%s.extracted' % filename
+    if not os.path.isdir(extracteddir):
+        os.mkdir(extracteddir)
+        print 'newly created directory', extracteddir
+    os.chdir(extracteddir)
+    tar = tarfile.open('../%s' % filename, 'r:gz')
+    for tarinfo in tar:
+        tar.extract(tarinfo)
+    tar.close()
+    os.chdir(here)
+    
+def _remove_exportpath(exportpath):
+    os.system('rm %s -fr' % exportpath)
+
+def _get_extracted_dirs(cwd):
+    ls = os.listdir(cwd)
+    extracteddirs = [f for f in ls if f[-10:] == '.extracted']
+    return extracteddirs
+
+def _get_docnames(extracteddirs):
+    return [f[:-10] for f in extracteddirs]
+
+def _get_filename_extension(filename, extsize=3):
+    return filename[-extsize:]
+
+
+def extract_document(filename):
+    ext = _get_filename_extension(filename)
+    if ext in TARGZ_EXTENSIONS:
+        _extract_targz_dotdir(filename)
+    elif ext in ZIP_EXTENSIONS:
+        _extract_zip_doc(filename)
+    else:
+        raise ValueError, 'unknown extension %s' % ext
+
+
+def prepare_document(filename):
+    here = os.getcwd()
+    exdir = '%s.extracted' % filename
+    exportpath = _export_extracted_dir(here, exdir)
+    ext = _get_filename_extension(filename)
+    if ext in TARGZ_EXTENSIONS:
+        _create_targz_dotdir(here, exportpath, filename)
+    elif ext in ZIP_EXTENSIONS:
+        _create_zip_doc(here, exportpath, filename)
+    else:
+        raise ValueError, 'unknown extension %s' % ext
+    _remove_exportpath(exportpath)
+    print 'document', filename, 'prepared'
+                             
+if opts.create:
+    if not len(args):
+        print "need filename arguments"
+        sys.exit(1)
+    for filename in args:
+        extract_document(filename)    
+    # we exit here as we only want to create
+    # the docs given for management
+    sys.exit(0)
+
+here = os.getcwd()
+exdirs = _get_extracted_dirs(here)
+
+# get list of managed documents
+docs = _get_docnames(exdirs)
+if not docs:
+    print 'no managed documents in this directory'
+    
+for doc in docs:
+    is_a_file = os.path.isfile(doc)
+    if not is_a_file:
+        # if the file is not already there, we want to prepare it by default
+        prepare_document(doc)
+        print doc, 'prepared'
+    elif is_a_file and opts.remove:
+        # the doc is there, but we want it removed
+        os.remove(doc)
+        print doc, 'removed'
+    elif is_a_file:
+        extract_document(doc)
+        print 'document', doc, 'extracted'
+    else:
+        print "I don't know what to do here."
+        print "document is,", doc
+        print str(is_a_file), 'existence of file'
+        sys.exit(1)
+
+print 'hopefully all was successful'
+
+sys.exit(0)
+#original stuff below
+
+
+
+
+def create_oodoc(exdir, filename):
+    here = os.getcwd()
+    exported = '%s-exported' % exdir
+    os.system('svn export %s %s' % (exdir, exported))
+    adir = os.path.join(here, exported)
+    os.chdir(adir)
+    os.system('zip -r ../%s .' % filename)
+    os.chdir(here)
+    os.system('rm %s -fr' % exported)
+    
+here = os.getcwd()
+ls = os.listdir(here)
+exdirs = [f for f in ls if f[-10:] == '.extracted']
+oodocs = [f[:-10] for f in exdirs]
+for doc in oodocs:
+    if not (os.path.isfile(doc) or opts.remove):
+        create_oodoc('%s.extracted' % doc, doc)
+    elif os.path.isfile(doc) and opts.remove:
+        os.remove(doc)
+if opts.extract:
+    for doc in oodocs:
+        os.system('unzip -d %s.extracted -o %s' % (doc, doc))
+
+
