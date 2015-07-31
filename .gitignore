@@ -1,3 +1,4 @@
+# -*- mode: gitignore; -*-
 *.py[cod]
 
 # C extensions
@@ -33,3 +34,10 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+
+# emacs
+*~
+\#*\#
+.\#*
+
