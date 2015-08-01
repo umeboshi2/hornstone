@@ -1,7 +1,9 @@
 import os, sys
 import hashlib
 import cPickle as Pickle
+from cStringIO import StringIO
 import subprocess
+import json
 
 
 #from useless.base.path import path
@@ -10,7 +12,6 @@ from unipath import FILES, DIRS, LINKS
 
 def run_command(cmd):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    proc.wait()
     if proc.returncode:
         msg = "%s returned %d" % (' '.join(cmd), proc.returncode)
         raise RuntimeError, msg
@@ -64,7 +65,7 @@ def parse_repocopy(line):
     return uuid, name
 
 
-def whereis(filepath):
+def whereisorig(filepath):
     cmd = ['git-annex', 'whereis', str(filepath)]
     proc = run_command(cmd)
     data = dict()
@@ -87,6 +88,49 @@ def whereis(filepath):
     data.update(parsed_topline)
     return data
 
-def make_whereis_report():
-    pass
+def whereis(filepath):
+    if os.path.isdir(filepath):
+        raise RuntimeError, "%s is a directory." % filepath
+    cmd = ['git-annex', 'whereis', '--json', filepath]
+    output = subprocess.check_output(cmd)
+    return json.loads(output.strip())
 
+    
+    
+
+def make_whereis_data(make_pickle=True):
+    main_filename = 'whereis.pickle'
+    if os.path.isfile(main_filename):
+        return Pickle.load(file(main_filename))
+    print "run command"
+    cmd = ['git-annex', 'whereis', '--json']
+    stdout = subprocess.check_output(cmd)
+    print "run command finished"
+    report_data = dict()
+    for line in StringIO(stdout):
+        filedata = json.loads(line.strip())
+        key = filedata['file'] 
+        if key in report_data:
+            raise RuntimeError, "%s already present." % key
+        report_data[key] = filedata
+    Pickle.dump(report_data, file(main_filename, 'w'))
+    return report_data
+
+
+
+# udata is global uuid repo dictionary
+# filedata is git-annex whereis --json output
+def update_uuids(udata, filedata):
+    changed = False
+    original_numkeys = len(udata.keys())
+    for item in filedata['whereis']:
+        uuid = item['uuid']
+        if uuid not in udata:
+            description = item['description']
+            udata[uuid] = description
+    current_numkeys = len(udata.keys())
+    if current_numkeys < original_numkeys:
+        raise RuntimeError, "Bad things happening here"
+    if current_numkeys != original_numkeys:
+        print "UUID's updated"
+        
