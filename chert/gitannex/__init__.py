@@ -73,6 +73,9 @@ def whereis(filepath):
     if lastline != 'ok':
         raise RuntimeError, "Problem with %s" % filepath
     topline = lines[0]
+    while topline == '(Recording state in git...)':
+        lines = lines[1:]
+        topline = lines[0]
     parsed_topline = parse_whereis_topline(topline, filepath)
     reposlice = lines[1:-1]
     repo_copies = [parse_repocopy(l) for l in reposlice]
