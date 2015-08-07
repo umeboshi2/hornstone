@@ -96,7 +96,21 @@ def whereis(filepath):
     return json.loads(output.strip())
 
     
-    
+def parse_whereis_command_output(output, verbose_warning=False):
+    report_data = dict()
+    for line in StringIO(output):
+        try:
+            filedata = json.loads(line.strip())
+        except UnicodeDecodeError:
+            if verbose_warning:
+                print "Warning converting to unicode:", line.strip()
+            line = unicode(line, errors='replace')
+            filedata = json.loads(line.strip())
+        key = filedata['file']
+        if key in report_data:
+            raise RuntimeError, "%s already present." % key
+        report_data[key] = filedata
+    return report_data
 
 def make_whereis_data(make_pickle=True):
     main_filename = 'whereis.pickle'
@@ -106,13 +120,7 @@ def make_whereis_data(make_pickle=True):
     cmd = ['git-annex', 'whereis', '--json']
     stdout = subprocess.check_output(cmd)
     print "run command finished"
-    report_data = dict()
-    for line in StringIO(stdout):
-        filedata = json.loads(line.strip())
-        key = filedata['file'] 
-        if key in report_data:
-            raise RuntimeError, "%s already present." % key
-        report_data[key] = filedata
+    report_data = parse_whereis_command_output(stdout)
     Pickle.dump(report_data, file(main_filename, 'w'))
     return report_data
 
