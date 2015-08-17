@@ -64,36 +64,9 @@ def parse_repocopy(line):
     uuid, name = [field.strip() for field in line.split('--')]
     return uuid, name
 
-
-def whereisorig(filepath):
-    cmd = ['git-annex', 'whereis', str(filepath)]
-    proc = run_command(cmd)
-    data = dict()
-    lines = [l.strip() for l in proc.stdout.readlines()]
-    lastline = lines[-1]
-    if lastline != 'ok':
-        raise RuntimeError, "Problem with %s" % filepath
-    topline = lines[0]
-    while topline == '(Recording state in git...)':
-        lines = lines[1:]
-        topline = lines[0]
-    parsed_topline = parse_whereis_topline(topline, filepath)
-    reposlice = lines[1:-1]
-    repo_copies = [parse_repocopy(l) for l in reposlice]
-    data = dict(lines=lines,
-                lastline=lastline,
-                reposlice=reposlice,
-                repo_copies=repo_copies,
-                filepath=filepath)
-    data.update(parsed_topline)
-    return data
-
-def whereis(filepath):
-    if os.path.isdir(filepath):
-        raise RuntimeError, "%s is a directory." % filepath
-    cmd = ['git-annex', 'whereis', '--json', filepath]
-    output = subprocess.check_output(cmd)
-    return json.loads(output.strip())
+def make_whereis_proc(output=None):
+    cmd = ['git-annex', 'whereis', '--json']
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
     
 def parse_whereis_command_output(output, verbose_warning=False):
