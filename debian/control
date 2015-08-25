@@ -10,6 +10,6 @@ Homepage: <insert the upstream URL, if relevant>
 
 Package: chert
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, python-sqlalchemy, python-unipath
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
