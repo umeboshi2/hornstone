@@ -68,7 +68,16 @@ def make_whereis_proc(output=None):
     cmd = ['git-annex', 'whereis', '--json']
     return subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
-    
+def make_find_proc(output=None,allrepos=True, inrepos=[]):
+    cmd = ['git-annex', 'find', '--json']
+    if allrepos:
+        cmd += ['--include', '*']
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        proc._cmd_list = cmd
+        return proc
+    if len(inrepos):
+        raise RuntimeError, "make --and list of repos for find"
+
 def parse_whereis_command_output(output, verbose_warning=False):
     report_data = dict()
     for line in StringIO(output):
@@ -114,4 +123,46 @@ def update_uuids(udata, filedata):
         raise RuntimeError, "Bad things happening here"
     if current_numkeys != original_numkeys:
         print "UUID's updated"
+        
+
+def parse_json_line(line, convert_to_unicode=False,
+                    verbose_warning=True):
+    try:
+        data = json.loads(line.strip())
+    except UnicodeDecodeError, e:
+        if not convert_to_unicode:
+            raise UnicodeDecodeError, e
+        if verbose_warning:
+            print "Warning converting to unicode:", line
+        line = unicode(line, errors='replace')
+        data = json.loads(line.strip())
+    return data
+
+# lines is iterable
+# either proc.stdout, lines in file, list, etc...
+def parse_json_output(lines, counter=None,
+                      convert_to_unicode=False,
+                      verbose_warning=True,
+                      output_to_file=False,
+                      output_filename='___INEEDANAME___.output'):
+    if output_to_file:
+        outfile = file(output_filename, 'w')
+    # the while loop will be broken with
+    # StopIteration error
+    while True:
+        try:
+            line = lines.next()
+            if output_to_file:
+                outfile.write(line)
+        except StopIteration:
+            if output_to_file:
+                outfile.close()
+            break
+        if counter is not None:
+            counter +=1
+        data = parse_json_line(
+            line,
+            convert_to_unicode=convert_to_unicode,
+            verbose_warning=verbose_warning)
+        print "DO SOMETHING WITH DATA", data
         
