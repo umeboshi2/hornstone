@@ -61,4 +61,4 @@ class AnnexFile(Base, SerialBase):
 ## Relationships                  ##
 ####################################
 
-AnnexFile.key = relationship(AnnexKey)
+AnnexFile.key = relationship(AnnexKey, backref='files')
