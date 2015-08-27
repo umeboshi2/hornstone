@@ -1,3 +1,8 @@
+from datetime import datetime, date
+
+from sqlalchemy import engine_from_config
+from sqlalchemy.orm import sessionmaker
+
 
 class SerialBase(object):
     def serialize(self):
@@ -16,3 +21,13 @@ class SerialBase(object):
             data[name] = value
         return data
     
+
+def make_sqlite_session(filename, create_all=False, baseclass=None):
+    dburl = "sqlite:///%s" % filename
+    settings = {'sqlalchemy.url' : dburl}
+    engine = engine_from_config(settings)
+    if create_all:
+        baseclass.metadata.create_all(engine)
+    session_class = sessionmaker()
+    session_class.configure(bind=engine)
+    return session_class
