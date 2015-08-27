@@ -11,6 +11,6 @@ Homepage: <insert the upstream URL, if relevant>
 Package: chert
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, python-sqlalchemy, python-unipath,
- python-requests
+ python-requests, python-rarfile
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>

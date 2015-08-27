@@ -31,6 +31,9 @@ HubbyFileType = Enum('agenda', 'minutes', 'attachment',
 GitAnnexBackendType = Enum('SHA256', 'SHA256E',
                            name='gitannex_backend_type_enum')
 
+ArchiveType = Enum('zip', 'rar', '7z',
+                   name='archive_file_type_enum')
+
 ####################################
 ## Tables                         ##
 ####################################
@@ -56,9 +59,66 @@ class AnnexFile(Base, SerialBase):
     mtime = Column(DateTime)
 
 
+class ArchiveFile(Base, SerialBase):
+    __tablename__ = "archive_files"
+    id = Column(Integer, ForeignKey('annex_files.id'), primary_key=True)
+
+class ArchiveEntry(Base, SerialBase):
+    __tablename__ = "archive_entries"
+    id = Column(Integer, primary_key=True)
+    archive_id = Column(Integer, ForeignKey('archive_files.id'))
+    archive_type = Column(ArchiveType)
+    name = Column(UnicodeText, unique=True)
+    bytesize = Column(Integer)
+    sha256sum = Column(Unicode(100))
+
+    # both rar and zip
+    crc = Column(Integer)
+    comment = Column(Unicode(200))
+    compress_size = Column(Integer)
+    date_time = Column(DateTime)
+    filename = Column(UnicodeText)
+    file_size = Column(Integer)
+    volume = Column(Integer)
+
+    # in both rar and zip, but not compatible
+    compress_type = Column(Integer)
+    extract_version = Column(Integer)
+    header_offset = Column(Integer)
+    orig_filename = Column(UnicodeText)
+    
+    # in zip files
+    create_system = Column(Integer)
+    create_version = Column(Integer)
+    external_attr = Column(Integer)
+    extra = Column(Unicode(200))
+    flag_bits = Column(Integer)
+    internal_attr = Column(Integer)
+    reserved = Column(Integer)
+    
+    # in rar files
+    add_size = Column(Integer)
+    arctime = Column(DateTime)
+    atime = Column(DateTime)
+    ctime = Column(DateTime)
+    file_offset = Column(Integer)
+    flags = Column(Integer)
+    header_base = Column(Integer)
+    header_crc = Column(Integer)
+    header_data = Column(UnicodeText)
+    header_size = Column(Integer)
+    host_os = Column(Integer)
+    mode = Column(Integer)
+    mtime = Column(DateTime)
+    name_size = Column(Integer)
+    salt = Column(UnicodeText)
+    type = Column(Integer)
+    volume_file = Column(UnicodeText)
+    
 
 ####################################
 ## Relationships                  ##
 ####################################
 
 AnnexFile.key = relationship(AnnexKey, backref='files')
+ArchiveFile.file = relationship(AnnexFile)
