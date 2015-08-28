@@ -41,7 +41,26 @@ def compare_two_dirs(session, dir_one, dir_two):
     dir_one = remove_trailing_slash(dir_one)
     dir_two = remove_trailing_slash(dir_two)
     dfq = make_dupefile_query(session)
-    
+    ddict = make_dupedict(dfq)
+    sets_of_interest = dict()
+    current_set = dict()
+    for annex_key in dupedict:
+        dir_one_present = False
+        dir_two_present = False
+        current_set = dict()
+        current_set[annex_key] = list()
+        for dfile in dupedict[annex_key]:
+            current_set.append(dfile)
+            if dfile.name.startswith(dir_one):
+                dir_one_present = True
+            if dfile.name.startswith(dir_two):
+                dir_two_present = True
+        if dir_one_present and dir_two_present:
+            if len(dupedict[annex_key]) == 2:
+                if annex_key not in sets_of_interest:
+                    sets_of_interest.update(current_set)
+    return sets_of_interest
+
 # this will return paths that are not
 # necessarily under the parent, but one
 # of the paths in the set of duplicates

@@ -34,6 +34,12 @@ def make_key(kdict):
     return '%(method)s-s%(size)d--%(checksum)s' % kdict
 
 
+def make_old_default_key(size, checksum):
+    return 'SHA256-s%d--%s' % (size, checksum)
+
+def make_default_key(size, checksum, ext):
+    return 'SHA256E-s%d--%s.%s' % (size, checksum, ext)
+    
 def parse_key(keystring):
     method, size, ignore, checksum = keystring.strip().split('-')
     if not size.startswith('s'):
