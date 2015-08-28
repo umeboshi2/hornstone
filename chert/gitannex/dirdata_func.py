@@ -1,10 +1,24 @@
+import os
+import json
+from datetime import datetime
+
 from sqlalchemy import func
 from sqlalchemy import distinct
 from sqlalchemy import or_
+from sqlalchemy import desc
+
+from sqlalchemy.orm.exc import NoResultFound
 
 from chert.base import remove_trailing_slash
 
+from chert.archivefiles import parse_archive_file
+from chert.archivefiles import get_archive_type
+
+from chert.gitannex import make_old_default_key, make_default_key
+
 from chert.gitannex.dirdatadb import AnnexKey, AnnexFile
+from chert.gitannex.dirdatadb import ArchiveFile, ArchiveEntry
+from chert.gitannex.dirdatadb import ArchiveEntryKey
 
 def count_annex_key_func():
     return func.count(AnnexFile.key_id).label('key_count')
@@ -81,6 +95,8 @@ def dupefiles_under_parent(session, parent_directory):
 def zero_bytesize_query(session):
     return session.query(AnnexFile).filter_by(bytesize=0)
 
+def largest_files_query(session):
+    return session.query(AnnexFile).order_by(desc(AnnexFile.bytesize))
 
                      
 ####################################
@@ -100,11 +116,39 @@ def get_archive_files(query, rarfiles=False):
     return files
     
 def populate_db_archive_entry(dbobj, parsed_entry, archive_type):
+    for key in ['ctime', 'mtime', 'atime']:
+        if key in parsed_entry and parsed_entry[key] is not None:
+            #filename = parsed_entry['filename']
+            #print "Correcting %s for %s" % (key, filename)
+            parsed_entry[key] = datetime(*(int(t) for t in parsed_entry[key]))
     for key in parsed_entry:
         value = parsed_entry[key]
         setattr(dbobj, key, value)
     dbobj.archive_type = archive_type
 
+def make_key_from_archive_entry(entry, oldkey=True):
+    size = entry['bytesize']
+    checksum = entry['sha256sum']
+    if oldkey:
+        return make_old_default_key(size, checksum)
+    ext = entry['filename'].split('.')[-1]
+    return make_default_key(size, checksum, ext)
+
+def create_archive_entry_key(session, key):
+    dbkey = ArchiveEntryKey()
+    dbkey.name = key
+    session.add(dbkey)
+    return session.merge(dbkey)
+
+def get_archive_entry_key(session, entry, oldkey=True):
+    key = make_key_from_archive_entry(entry, oldkey=oldkey)
+    try:
+        dbkey = session.query(ArchiveEntryKey).filter_by(name=key).one()
+    except NoResultFound:
+        dbkey = create_archive_entry_key(session, key)
+    return dbkey
+
+        
 def insert_archive_file(session, afile, sha256sum=True):
     archived = session.query(ArchiveFile).get(afile.id)
     if archived is None:
@@ -119,9 +163,12 @@ def insert_archive_file(session, afile, sha256sum=True):
     af.archive_type = archive_type
     session.add(af)
     for entry in entries:
+        dbkey = get_archive_entry_key(session, entry, oldkey=True)
+        #import pdb ; pdb.set_trace()
         dbobj = ArchiveEntry()
         populate_db_archive_entry(dbobj, entry, archive_type)
         dbobj.archive_id = afile.id
+        dbobj.key_id = dbkey.id
         session.add(dbobj)
     session.commit()
     print "Successful commit of %s with %d entries" % (afile.name, len(entries))
@@ -147,15 +194,16 @@ def export_archive_manifest(session, fileid=None, name=None):
 
 def export_annexed_archive_data(session, afile):
     data = afile.serialize()
+    if 'key' in data:
+        raise RuntimeError, "bad data %s" % data
+    data['key'] = afile.key.name
     arfile = session.query(ArchiveFile).get(afile.id)
     data.update(_export_archive_file_dbobject(arfile))
     return data
 
 def export_archive_to_file(session, afile, directory):
     data = export_annexed_archive_data(session, afile)
-    name = afile.name
-    name = name.replace('/', '_')
-    name = '%s.json' % name
+    name = '%s.json' % data['key']
     filename = os.path.join(directory, name)
     with file(filename, 'w') as outfile:
         json.dump(data, outfile)
@@ -171,6 +219,10 @@ def export_all_archives(session, annex_file_query, directory):
         export_archive_to_file(session, afile, directory)
         
 
+def common_key_query(session):
+    q = session.query(AnnexKey, ArchiveEntryKey)
+    q = q.filter(AnnexKey.name == ArchiveEntryKey.name)
+    return q
 
 
 
