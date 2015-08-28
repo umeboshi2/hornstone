@@ -1,5 +1,8 @@
 from sqlalchemy import func
 from sqlalchemy import distinct
+from sqlalchemy import or_
+
+from chert.base import remove_trailing_slash
 
 from chert.gitannex.dirdatadb import AnnexKey, AnnexFile
 
@@ -24,13 +27,27 @@ def make_dupefile_query(session):
     return q
 
 
+def make_dupedict(dupeqry):
+    dupedict = dict()
+    for df in dupeqry:
+        annex_key = df.key.name
+        if annex_key not in dupedict:
+            dupedict[annex_key] = list()
+        dupedict[annex_key].append(df)
+    return dupedict
+
+
+def compare_two_dirs(session, dir_one, dir_two):
+    dir_one = remove_trailing_slash(dir_one)
+    dir_two = remove_trailing_slash(dir_two)
+    dfq = make_dupefile_query(session)
+    
 # this will return paths that are not
 # necessarily under the parent, but one
 # of the paths in the set of duplicates
 # will be under the parent.
 def dupekeys_under_parent(session, parent_directory):
-    while parent_directory.endswith('/'):
-        parent_directory = parent_directory[:-1]
+    parent_directory = remove_trailing_slash(parent_directory)
     dfq = make_dupefile_query(session)
     psq = dfq.filter(AnnexFile.name.like('%s/%%' % parent_directory)).subquery()
     key_query = session.query(distinct(psq.c.key_id))
@@ -47,6 +64,101 @@ def zero_bytesize_query(session):
 
 
                      
+####################################
+# archive files
+####################################
+def get_archive_files(query, rarfiles=False):
+    files = list()
+    for afile in query:
+        name = afile.name.lower()
+        #print "Name is %s" % name
+        if name.endswith('.zip'):
+            files.append(afile)
+        elif rarfiles and  name.endswith('.rar'):
+            files.append(afile)
+        else:
+            continue
+    return files
+    
+def populate_db_archive_entry(dbobj, parsed_entry, archive_type):
+    for key in parsed_entry:
+        value = parsed_entry[key]
+        setattr(dbobj, key, value)
+    dbobj.archive_type = archive_type
+
+def insert_archive_file(session, afile, sha256sum=True):
+    archived = session.query(ArchiveFile).get(afile.id)
+    if archived is None:
+        print "need to archive", afile.name
+        entries = parse_archive_file(afile.name, sha256sum=sha256sum)
+    else:
+        print "Archive should be available"
+        return
+    archive_type = get_archive_type(afile.name)
+    af = ArchiveFile()
+    af.id = afile.id
+    af.archive_type = archive_type
+    session.add(af)
+    for entry in entries:
+        dbobj = ArchiveEntry()
+        populate_db_archive_entry(dbobj, entry, archive_type)
+        dbobj.archive_id = afile.id
+        session.add(dbobj)
+    session.commit()
+    print "Successful commit of %s with %d entries" % (afile.name, len(entries))
+
+def _export_archive_file_dbobject(archivefile):
+    entries = [e.serialize() for e in archivefile.entries]
+    data = dict(entries=entries, 
+                archive_type=archivefile.archive_type)
+    return data
+
+
+
+    
+def export_archive_manifest(session, fileid=None, name=None):
+    if fileid is None and name is None:
+        raise RuntimeError, "need either fileid or name"
+    if fileid is not None:
+        afile = session.query(ArchiveFile).get(fileid)
+    elif name is not None:
+        q = session.query(ArchiveFile, AnnexFile).filter(AnnexFile.name == name)
+        afile = q.one()
+    return _export_archive_file_dbobject(afile)
+
+def export_annexed_archive_data(session, afile):
+    data = afile.serialize()
+    arfile = session.query(ArchiveFile).get(afile.id)
+    data.update(_export_archive_file_dbobject(arfile))
+    return data
+
+def export_archive_to_file(session, afile, directory):
+    data = export_annexed_archive_data(session, afile)
+    name = afile.name
+    name = name.replace('/', '_')
+    name = '%s.json' % name
+    filename = os.path.join(directory, name)
+    with file(filename, 'w') as outfile:
+        json.dump(data, outfile)
+        
+    
+def export_all_archives(session, annex_file_query, directory):
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+    if not os.path.isdir(directory):
+        raise RuntimeError, "%s not created." % directory
+    archive_files = get_archive_files(annex_file_query)
+    for afile in archive_files:
+        export_archive_to_file(session, afile, directory)
+        
+
+
+
+
+
+
+
+
 def _various_queries():
     mq = s.query(AnnexKey, AnnexFile)
     fq = mq.filter(AnnexKey.id == AnnexFile.key_id)

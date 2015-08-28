@@ -165,4 +165,3 @@ def parse_json_output(lines, counter=None,
             convert_to_unicode=convert_to_unicode,
             verbose_warning=verbose_warning)
         print "DO SOMETHING WITH DATA", data
-        

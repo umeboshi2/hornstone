@@ -62,13 +62,14 @@ class AnnexFile(Base, SerialBase):
 class ArchiveFile(Base, SerialBase):
     __tablename__ = "archive_files"
     id = Column(Integer, ForeignKey('annex_files.id'), primary_key=True)
+    archive_type = Column(ArchiveType)
 
 class ArchiveEntry(Base, SerialBase):
     __tablename__ = "archive_entries"
     id = Column(Integer, primary_key=True)
     archive_id = Column(Integer, ForeignKey('archive_files.id'))
+    entry_id = Column(Integer)
     archive_type = Column(ArchiveType)
-    name = Column(UnicodeText, unique=True)
     bytesize = Column(Integer)
     sha256sum = Column(Unicode(100))
 
@@ -122,3 +123,4 @@ class ArchiveEntry(Base, SerialBase):
 
 AnnexFile.key = relationship(AnnexKey, backref='files')
 ArchiveFile.file = relationship(AnnexFile)
+ArchiveFile.entries = relationship(ArchiveEntry, backref='archive')
