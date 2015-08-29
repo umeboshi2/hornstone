@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+import os
 from datetime import datetime
 import zipfile
+import tempfile
+import subprocess
+
+#from useless.base.path import path
+from unipath.path import Path as path
+from unipath import FILES, DIRS, LINKS
 
 import rarfile
 rarfile.UNRAR_TOOL = 'rar'
@@ -54,16 +61,43 @@ def get_archive_type(filename):
         raise RuntimeError, "unable to handle archive %s" % filename    
     return archive_type
 
-def parse_archive_file(filename, sha256sum=False):
-    archive_type = get_archive_type(filename)
-    fileclass = ARCHIVE_FILECLASS[archive_type]
+
+def scan_directory_tree(dirname):
+    dirname = path(dirname)
     entries = list()
-    with fileclass(filename, 'r') as afile:
+    for fname in dirname.walk(filter=FILES):
+        filename = unicode(dirname.rel_path_to(fname), errors='replace')
+        ifile = file(fname)
+        ifile.seek(0, 2)
+        file_size = ifile.tell()
+        ifile.seek(0)
+        sha256sum = get_sha256sum(ifile)
+        entry = dict(filename=filename,
+                     sha256sum=sha256sum,
+                     file_size=file_size,
+                     bytesize=file_size)
+        entries.append(entry)
+    return entries
+
+        
+def parse_rar_archive(filename, sha256sum=False):
+    tmpdir = tempfile.mkdtemp(prefix='extracted-rar-')
+    cmd = ['rar', 'x', filename, tmpdir]
+    subprocess.check_call(cmd)
+    here = path.cwd()
+    os.chdir(tmpdir)
+    td = path(tmpdir)
+    entries = scan_directory_tree(td)
+    cmd = ['rm', '-fr', tmpdir]
+    subprocess.check_call(cmd)
+    os.chdir(here)
+    return entries
+
+def parse_zip_archive(filename, sha256sum=False):
+    entries = list()
+    with zipfile.ZipFile(filename, 'r') as afile:
         for ainfo in afile.infolist():
-            if archive_type == 'rar' and ainfo.isdir():
-                print "Skipping directory entry %s" % ainfo.filename
-                continue
-            parsed = parse_archive_info(ainfo, archive_type)
+            parsed = parse_archive_info(ainfo, 'zip')
             parsed['bytesize'] = ainfo.file_size
             if sha256sum:
                 fileobj = afile.open(ainfo)
@@ -72,4 +106,9 @@ def parse_archive_file(filename, sha256sum=False):
             entries.append(parsed)
     return entries
 
+archive_parser = dict(zip=parse_zip_archive, rar=parse_rar_archive)
+            
+def parse_archive_file(filename, sha256sum=False):
+    archive_type = get_archive_type(filename)
+    return archive_parser[archive_type](filename, sha256sum=sha256sum)
 

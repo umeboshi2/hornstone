@@ -91,13 +91,16 @@ def make_find_proc(output=None,allrepos=True, inrepos=[]):
 def parse_whereis_command_output(output, verbose_warning=False):
     report_data = dict()
     for line in StringIO(output):
+        unicode_decode_error = False
         try:
             filedata = json.loads(line.strip())
         except UnicodeDecodeError:
+            unicode_decode_error = True
             if verbose_warning:
                 print "Warning converting to unicode:", line.strip()
             line = unicode(line, errors='replace')
             filedata = json.loads(line.strip())
+        filedata['unicode_decode_error'] = unicode_decode_error
         key = filedata['file']
         if key in report_data:
             raise RuntimeError, "%s already present." % key
@@ -137,15 +140,19 @@ def update_uuids(udata, filedata):
 
 def parse_json_line(line, convert_to_unicode=False,
                     verbose_warning=True):
+    unicode_decode_error = False
     try:
         data = json.loads(line.strip())
     except UnicodeDecodeError, e:
         if not convert_to_unicode:
             raise UnicodeDecodeError, e
+        unicode_decode_error = True
         if verbose_warning:
             print "Warning converting to unicode:", line
         line = unicode(line, errors='replace')
         data = json.loads(line.strip())
+    if convert_to_unicode:
+        data['unicode_decode_error'] = unicode_decode_error
     return data
 
 # lines is iterable

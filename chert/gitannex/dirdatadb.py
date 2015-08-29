@@ -57,7 +57,8 @@ class AnnexFile(Base, SerialBase):
     hashdirmixed = Column(Unicode(10))
     # null mtime is "unknown"
     mtime = Column(DateTime)
-
+    unicode_decode_error = Column(Boolean)
+    
 
 class ArchiveFile(Base, SerialBase):
     __tablename__ = "archive_files"
@@ -79,6 +80,7 @@ class ArchiveEntry(Base, SerialBase):
     archive_type = Column(ArchiveType)
     bytesize = Column(Integer)
     sha256sum = Column(Unicode(100))
+    unicode_decode_error = Column(Boolean)
 
     # both rar and zip
     crc = Column(Integer)
