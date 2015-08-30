@@ -21,9 +21,7 @@ class SerialBase(object):
             data[name] = value
         return data
     
-
-def make_sqlite_session(filename, create_all=False, baseclass=None):
-    dburl = "sqlite:///%s" % filename
+def _make_db_session(dburl, create_all=False, baseclass=None):
     settings = {'sqlalchemy.url' : dburl}
     engine = engine_from_config(settings)
     if create_all:
@@ -31,3 +29,13 @@ def make_sqlite_session(filename, create_all=False, baseclass=None):
     session_class = sessionmaker()
     session_class.configure(bind=engine)
     return session_class
+
+def make_sqlite_session(filename, create_all=False, baseclass=None):
+    dburl = "sqlite:///%s" % filename
+    return _make_db_session(dburl, create_all=create_all,
+                            baseclass=baseclass)
+
+def make_postgresql_session(dburl, create_all=False, baseclass=None):
+    return _make_db_session(dburl, create_all=create_all,
+                            baseclass=baseclass)
+

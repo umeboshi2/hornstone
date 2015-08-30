@@ -10,6 +10,7 @@ from sqlalchemy import Boolean, Date, LargeBinary
 from sqlalchemy import PickleType
 from sqlalchemy import Enum
 from sqlalchemy import DateTime
+from sqlalchemy import BigInteger
 
 from sqlalchemy.orm import relationship, backref
 
@@ -50,7 +51,7 @@ class AnnexFile(Base, SerialBase):
     name = Column(UnicodeText, unique=True)
     key_id = Column(Integer, ForeignKey('annex_keys.id'))
     backend = Column(GitAnnexBackendType)
-    bytesize = Column(Integer)
+    bytesize = Column(BigInteger)
     humansize = Column(Unicode(50))
     keyname = Column(Unicode(100))
     hashdirlower = Column(Unicode(10))
@@ -78,40 +79,40 @@ class ArchiveEntry(Base, SerialBase):
     entry_id = Column(Integer)
     key_id = Column(Integer, ForeignKey('archive_entry_keys.id'))
     archive_type = Column(ArchiveType)
-    bytesize = Column(Integer)
+    bytesize = Column(BigInteger)
     sha256sum = Column(Unicode(100))
     unicode_decode_error = Column(Boolean)
 
     # both rar and zip
-    crc = Column(Integer)
+    crc = Column(BigInteger)
     comment = Column(Unicode(200))
-    compress_size = Column(Integer)
+    compress_size = Column(BigInteger)
     date_time = Column(DateTime)
     filename = Column(UnicodeText)
-    file_size = Column(Integer)
+    file_size = Column(BigInteger)
     volume = Column(Integer)
 
     # in both rar and zip, but not compatible
     compress_type = Column(Integer)
     extract_version = Column(Integer)
-    header_offset = Column(Integer)
+    header_offset = Column(BigInteger)
     orig_filename = Column(UnicodeText)
     
     # in zip files
     create_system = Column(Integer)
     create_version = Column(Integer)
-    external_attr = Column(Integer)
+    external_attr = Column(BigInteger)
     extra = Column(Unicode(200))
     flag_bits = Column(Integer)
     internal_attr = Column(Integer)
     reserved = Column(Integer)
     
     # in rar files
-    add_size = Column(Integer)
+    add_size = Column(BigInteger)
     arctime = Column(DateTime)
     atime = Column(DateTime)
     ctime = Column(DateTime)
-    file_offset = Column(Integer)
+    file_offset = Column(BigInteger)
     flags = Column(Integer)
     header_base = Column(Integer)
     header_crc = Column(Integer)
@@ -120,7 +121,7 @@ class ArchiveEntry(Base, SerialBase):
     host_os = Column(Integer)
     mode = Column(Integer)
     mtime = Column(DateTime)
-    name_size = Column(Integer)
+    name_size = Column(BigInteger)
     salt = Column(UnicodeText)
     type = Column(Integer)
     volume_file = Column(UnicodeText)
