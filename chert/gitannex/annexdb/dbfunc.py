@@ -2,6 +2,7 @@ import os
 import json
 from datetime import datetime
 import zipfile
+import tempfile
 
 from sqlalchemy import func
 from sqlalchemy import distinct
@@ -15,7 +16,7 @@ from chert.base import remove_trailing_slash
 from chert.archivefiles import parse_archive_file
 from chert.archivefiles import get_archive_type
 
-from chert.gitannex import make_old_default_key, make_default_key
+from chert import gitannex
 
 from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
 from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
@@ -108,8 +109,138 @@ def zero_bytesize_query(session):
 def largest_files_query(session):
     return session.query(AnnexFile).order_by(desc(AnnexFile.bytesize))
 
+
+################################
+# from make-find-database.py
+################################
+
+def get_find_data(session,
+                  auto_convert_unicode=False,
+                  verbose_warning=True,
+                  output_to_file=False,
+                  output_filename='find.output'):
+    proc = gitannex.make_find_proc()
+    #import pdb ; pdb.set_trace()
+    count = 0
+    if output_to_file:
+        outfile = file(output_filename, 'w')
+    while proc.returncode is None:
+        try:
+            line = proc.stdout.next()
+            if output_to_file:
+                outfile.write(line)
+        except StopIteration:
+            if output_to_file:
+                outfile.close()
+            break
+        count += 1
+
+def make_find_output():
+    ignore, filename = tempfile.mkstemp(prefix='gitannex-find-output-')
+    get_find_data('ignore',
+                  auto_convert_unicode=True,
+                  output_to_file=True,
+                  output_filename=filename)
+    return filename
+
+
+def initialize_annex_keys(session, find_output_filename):
+    filename = find_output_filename
+    keys = set()
+    with file(filename) as infile:
+        while True:
+            try:
+                line = infile.next()
+            except StopIteration:
+                break
+            data = gitannex.parse_json_line(
+                line,
+                convert_to_unicode=True,
+                verbose_warning=True)
+            keys.add(data['key'])
+    for k in keys:
+        dbk = AnnexKey()
+        dbk.name = k
+        session.add(dbk)
+    print "added %d keys" % len(keys)
+    print datetime.now()
+    session.commit()
+    print "successful commit", datetime.now()
+
+
+
+
+def _add_annexfile_attributes(keylookup, dbobj, data):
+    key = data['key']
+    try:
+        dbobj.key_id = keylookup[key]
+    except KeyError:
+        raise KeyError, "Unknown key %s" % data
+
+    dbobj.name = data['file']
+    for att in ['backend', 'bytesize', 'humansize',
+                'keyname', 'hashdirlower', 'hashdirmixed',
+                'unicode_decode_error']:
+        setattr(dbobj, att, data[att])
+        if data['mtime'] != 'unknown':
+            raise RuntimeError, "Parse time?"
+        
+
+def add_file_to_database(session, keylookup, filedata,
+                         commit=False):
+    dbobj = AnnexFile()
+    _add_annexfile_attributes(keylookup, dbobj, filedata)
+    session.add(dbobj)
+
+
+
+
+def add_files(session, keylookup, find_output_filename):
+    with file(find_output_filename) as infile:
+        count = 0
+        current = datetime.now()
+        while True:
+            try:
+                line = infile.next()
+                count += 1
+            except StopIteration:
+                break
+            data = gitannex.parse_json_line(
+                line,
+                convert_to_unicode=True,
+                verbose_warning=True)
+            commit = False
+            add_file_to_database(session, keylookup, data)
+            if not count % 5000:
+                commit = True
+                print "Committing %d files" % count
+                now = datetime.now()
+                print "Diff", now - current
+                current = now
+                session.commit()
+        print "%d files added." % count
+        session.commit()
+        print datetime.now()
+
+
+def populate_database(session):
+    find_output_filename = make_find_output()
+    kl = make_keyid_lookup_dict(session)
+    if not len(kl):
+        initialize_annex_keys(session, find_output_filename)
+        kl = make_keyid_lookup_dict(session)
+    if not len(kl):
+        raise RuntimeError, "No key database"
+    add_files(session, kl, find_output_filename)
+    session.commit()
+    os.remove(find_output_filename)
+    
                      
 
+
+################################
+# JUNK
+################################
 
 def _various_queries():
     mq = s.query(AnnexKey, AnnexFile)
