@@ -63,24 +63,6 @@ def get_archive_type(filename):
     return archive_type
 
 
-def scan_directory_tree(dirname):
-    dirname = path(dirname)
-    entries = list()
-    for fname in dirname.walk(filter=FILES):
-        filename = unicode(dirname.rel_path_to(fname), errors='replace')
-        ifile = file(fname)
-        ifile.seek(0, 2)
-        file_size = ifile.tell()
-        ifile.seek(0)
-        sha256sum = get_sha256sum(ifile)
-        entry = dict(filename=filename,
-                     sha256sum=sha256sum,
-                     file_size=file_size,
-                     bytesize=file_size)
-        entries.append(entry)
-    return entries
-
-
 def get_extracted_info(parent_dir, fileinfo, sha256sum=False):
     parent_dir = path(parent_dir)
     filename = fileinfo.filename

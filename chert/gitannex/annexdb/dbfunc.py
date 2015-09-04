@@ -224,7 +224,11 @@ def add_files(session, keylookup, find_output_filename):
 
 
 def populate_database(session):
+    now = datetime.now()
+    print "Creating git-annex find output"
     find_output_filename = make_find_output()
+    print "Finished creating git-annex find output"
+    print "Time taken for git-annex find: %s" % (datetime.now() - now)
     kl = make_keyid_lookup_dict(session)
     if not len(kl):
         initialize_annex_keys(session, find_output_filename)
