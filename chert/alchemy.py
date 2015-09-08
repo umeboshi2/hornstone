@@ -3,6 +3,23 @@ from datetime import datetime, date
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
 
+# http://stackoverflow.com/questions/4617291/how-do-i-get-a-raw-compiled-sql-query-from-a-sqlalchemy-expression
+from sqlalchemy.sql import compiler
+from psycopg2.extensions import adapt as sqlescape
+
+def compile_query(query):
+    dialect = query.session.bind.dialect
+    statement = query.statement
+    comp = compiler.SQLCompiler(dialect, statement)
+    comp.compile()
+    enc = dialect.encoding
+    params = {}
+    for k, v in comp.params.iteritems():
+        if isinstance(v, unicode):
+            v = v.encode(enc)
+        params[k] = sqlescape(v)
+    return (comp.string.encode(enc) % params).decode(enc)
+
 
 class SerialBase(object):
     def serialize(self):
@@ -20,6 +37,11 @@ class SerialBase(object):
                     value = value.isoformat()
             data[name] = value
         return data
+
+
+
+
+    
     
 def _make_db_session(dburl, create_all=False, baseclass=None):
     settings = {'sqlalchemy.url' : dburl}
