@@ -21,6 +21,7 @@ from chert import gitannex
 from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
 from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
 from chert.gitannex.annexdb.schema import ArchiveEntryKey
+from chert.gitannex.annexdb.schema import RepoFile
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'
@@ -144,6 +145,62 @@ def make_find_output():
     return filename
 
 
+def make_whereis_output():
+    ignore, filename = tempfile.mkstemp(prefix='gitannex-whereis-output-')
+    proc = gitannex.make_whereis_proc()
+    count = 0
+    outfile = file(filename, 'w')
+    while proc.returncode is None:
+        try:
+            line = proc.stdout.next()
+            outfile.write(line)
+        except StopIteration:
+            outfile.close()
+            break
+        count += 1
+    return filename
+
+def parse_whereis_line(session, line, repoids, convert_to_unicode=True,
+                       verbose_warning=True):
+    try:
+        data = json.loads(line.strip())
+    except UnicodeDecodeError, e:
+        if not convert_to_unicode:
+            raise UnicodeDecodeError, e
+        if verbose_warning:
+            print "Warning converting to unicode", line.strip()
+        line = unicode(line, errors='replace')
+        data = json.loads(line.strip())
+    f = session.query(AnnexFile).filter_by(name=data['file']).one()
+    for wdata in data['whereis']:
+        uuid = wdata['uuid']
+        w = RepoFile()
+        w.file_id = f.id
+        w.repo_id = repoids[uuid]
+        session.add(w)
+
+    
+def parse_whereis_cmd(session, repoids, convert_to_unicode=True,
+                      verbose_warning=True):
+    proc = gitannex.make_whereis_proc()
+    count = 0
+    while proc.returncode is None:
+        try:
+            line = proc.stdout.next()
+        except StopIteration:
+            break
+        parse_whereis_line(session, line, repoids,
+                           convert_to_unicode=convert_to_unicode,
+                           verbose_warning=verbose_warning)
+        count += 1
+        if not count % 5000:
+            print "committing at count %d" % count
+            session.commit()
+    if proc.returncode:
+        raise RuntimeError, "command returned %d" % proc.returncode
+    session.commit()
+    
+
 def initialize_annex_keys(session, find_output_filename):
     filename = find_output_filename
     keys = set()
@@ -166,7 +223,6 @@ def initialize_annex_keys(session, find_output_filename):
     print datetime.now()
     session.commit()
     print "successful commit", datetime.now()
-
 
 
 
@@ -223,6 +279,27 @@ def add_files(session, keylookup, find_output_filename):
         print datetime.now()
 
 
+def populate_whereis_orig(session):
+    print "Creating git-annex whereis output"
+    whereis_output_filename = make_whereis_output()
+    print "Finished creating git-annex find output"
+    with file(whereis_output_filename) as infile:
+        count = 0
+        for line in infile:
+            count +=1
+            parse_whereis_line(line)
+            if not count % 5000:
+                print "committing at count %d" % count
+                session.commit()
+    session.commit()
+
+def populate_whereis(session, repoids):
+    print "populating whereis info"
+    parse_whereis_cmd(session, repoids, convert_to_unicode=True,
+                      verbose_warning=True)
+    print "whereis info populated"
+    
+    
 def populate_database(session):
     now = datetime.now()
     print "Creating git-annex find output"
@@ -238,6 +315,7 @@ def populate_database(session):
     add_files(session, kl, find_output_filename)
     session.commit()
     os.remove(find_output_filename)
+    populate_whereis(session)
     
                      
 
