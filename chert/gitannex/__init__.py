@@ -87,6 +87,23 @@ def make_find_proc(output=None,allrepos=True, inrepos=[]):
         return proc
     if len(inrepos):
         raise RuntimeError, "make --and list of repos for find"
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
+def make_info_proc(fast=True, output=None):
+    cmd = ['git-annex', 'info', '--json']
+    if fast:
+        cmd.append('--fast')
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
+def annex_info(fast=True):
+    proc = make_info_proc(fast=fast)
+    if fast:
+        proc.wait()
+        return json.load(proc.stdout)
+    else:
+        raise RuntimeError, "only --fast currently supported."
+    
+
 
 def parse_whereis_command_output(output, verbose_warning=False):
     report_data = dict()
