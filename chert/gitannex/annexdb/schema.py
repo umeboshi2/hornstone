@@ -39,6 +39,11 @@ ArchiveType = Enum('zip', 'rar', '7z',
 ## Tables                         ##
 ####################################
 #
+class AnnexRepository(Base,SerialBase):
+    __tablename__ = 'annex_repositories'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(200), unique=True)
+    uuid = Column(Unicode(40), unique=True)
 
 class AnnexKey(Base, SerialBase):
     __tablename__ = "annex_keys"
@@ -61,6 +66,13 @@ class AnnexFile(Base, SerialBase):
     unicode_decode_error = Column(Boolean)
     
 
+class RepoFile(Base, SerialBase):
+    __tablename__ = "annex_repo_files"
+    file_id = Column(Integer, ForeignKey('annex_files.id'),
+                     primary_key=True)
+    repo_id = Column(Integer, ForeignKey('annex_repositories.id'),
+                     primary_key=True)
+    
 class ArchiveFile(Base, SerialBase):
     __tablename__ = "archive_files"
     id = Column(Integer, ForeignKey('annex_files.id'), primary_key=True)
@@ -127,6 +139,7 @@ class ArchiveEntry(Base, SerialBase):
     volume_file = Column(UnicodeText)
     
 
+    
 ####################################
 ## Relationships                  ##
 ####################################
@@ -135,3 +148,4 @@ AnnexFile.key = relationship(AnnexKey, backref='files')
 ArchiveFile.file = relationship(AnnexFile)
 ArchiveFile.entries = relationship(ArchiveEntry, backref='archive')
 ArchiveEntry.key = relationship(ArchiveEntryKey, backref='entries')
+RepoFile.file = relationship(AnnexFile, backref='repositories')
