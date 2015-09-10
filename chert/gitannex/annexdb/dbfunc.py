@@ -226,13 +226,7 @@ def initialize_annex_keys(session, find_output_filename):
 
 
 
-def _add_annexfile_attributes(keylookup, dbobj, data):
-    key = data['key']
-    try:
-        dbobj.key_id = keylookup[key]
-    except KeyError:
-        raise KeyError, "Unknown key %s" % data
-
+def _add_annexfile_attributes_common(dbobj, data):
     dbobj.name = data['file']
     for att in ['backend', 'bytesize', 'humansize',
                 'keyname', 'hashdirlower', 'hashdirmixed',
@@ -241,14 +235,25 @@ def _add_annexfile_attributes(keylookup, dbobj, data):
         if data['mtime'] != 'unknown':
             raise RuntimeError, "Parse time?"
         
+def _add_annexfile_attributes(keylookup, dbobj, data):
+    key = data['key']
+    try:
+        dbobj.key_id = keylookup[key]
+    except KeyError:
+        raise KeyError, "Unknown key %s" % data
+    _add_annexfile_attributes_common(dbobj, data)
+
+        
+def _add_new_annexfile_attributes(key_id, dbobj, data):
+    dbobj.key_id = key_id
+    _add_annexfile_attributes_common(dbobj, data)
+    
 
 def add_file_to_database(session, keylookup, filedata,
                          commit=False):
     dbobj = AnnexFile()
     _add_annexfile_attributes(keylookup, dbobj, filedata)
     session.add(dbobj)
-
-
 
 
 def add_files(session, keylookup, find_output_filename):
@@ -278,20 +283,39 @@ def add_files(session, keylookup, find_output_filename):
         session.commit()
         print datetime.now()
 
+        
+def add_new_file_to_database(session, filedata,
+                             commit=False):
+    key = filedata['key']
+    try:
+        keyobj = session.query(AnnexKey).filter_by(name=key).one()
+    except NoResultFound:
+        keyobj = AnnexKey()
+        keyobj.name = key
+        session.add(keyobj)
+        keyobj = session.merge(keyobj)
+    dbobj = AnnexFile()
+    _add_new_annexfile_attributes(keyobj.id, dbobj, filedata)
+    session.add(dbobj)
 
-def populate_whereis_orig(session):
-    print "Creating git-annex whereis output"
-    whereis_output_filename = make_whereis_output()
-    print "Finished creating git-annex find output"
-    with file(whereis_output_filename) as infile:
-        count = 0
-        for line in infile:
-            count +=1
-            parse_whereis_line(line)
-            if not count % 5000:
-                print "committing at count %d" % count
-                session.commit()
+
+def add_new_files(session, keylookup, newfiles):
+    count = 0
+    current = datetime.now()
+    for data in newfiles:
+        count += 1
+        commit = False
+        add_new_file_to_database(session, data)
+        if not count % 5000:
+            commit = True
+            print "Committing %d files" % count
+            now = datetime.now()
+            print "Diff", now - current
+            current = now
+            session.commit()
+    print "%d files added." % count
     session.commit()
+    print datetime.now()
 
 def populate_whereis(session, repoids):
     print "populating whereis info"
