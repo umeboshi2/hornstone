@@ -26,14 +26,14 @@ Base = declarative_base()
 ## Data Types                     ##
 ####################################
 
-HubbyFileType = Enum('agenda', 'minutes', 'attachment',
-                name='hubbyfile_type_enum')
-
 GitAnnexBackendType = Enum('SHA256', 'SHA256E',
                            name='gitannex_backend_type_enum')
 
 ArchiveType = Enum('zip', 'rar', '7z',
                    name='archive_file_type_enum')
+
+AnnexRepositoryTrustType = Enum('trusted', 'semitrusted', 'untrusted', 'dead',
+                                 name='gitannex_repository_trust_type')
 
 ####################################
 ## Tables                         ##
@@ -44,7 +44,8 @@ class AnnexRepository(Base,SerialBase):
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
     uuid = Column(Unicode(40), unique=True)
-
+    trust = Column(AnnexRepositoryTrustType, default='semitrusted')
+    
 class AnnexKey(Base, SerialBase):
     __tablename__ = "annex_keys"
     id = Column(Integer, primary_key=True)
