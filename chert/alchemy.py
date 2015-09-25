@@ -1,5 +1,18 @@
 from datetime import datetime, date
 
+
+from sqlalchemy import Column
+# column types
+#from sqlalchemy import Integer, String, Unicode
+#from sqlalchemy import UnicodeText
+#from sqlalchemy import Boolean, Date, LargeBinary
+#from sqlalchemy import PickleType
+#from sqlalchemy import Enum
+from sqlalchemy import DateTime
+#from sqlalchemy import BigInteger
+
+from sqlalchemy import func
+
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
 
@@ -40,7 +53,9 @@ class SerialBase(object):
 
 
 
-
+class TimeStampMixin(SerialBase):
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now())
     
     
 def _make_db_session(dburl, create_all=False, baseclass=None):

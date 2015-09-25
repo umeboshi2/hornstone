@@ -25,34 +25,31 @@ from chert.gitannex.annexdb.schema import ArchiveEntryKey
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'
 
-def _archive_filename_query(session, oclass, attr, rarfiles=False):
-    likezip = getattr(oclass, attr).like('%.zip')
-    likerar = getattr(oclass, attr).like('%.rar')
-    if rarfiles:
-        return session.query(oclass).filter(or_(likezip, likerar))
-    return session.query(oclass).filter(likezip)
 
-def _archive_filename_filter(query, oclass, attr, rarfiles=False):
+def archive_filename_filter(query, oclass, attr, rarfiles=False):
     likezip = getattr(oclass, attr).like('%.zip')
     likerar = getattr(oclass, attr).like('%.rar')
     if rarfiles:
         return query.filter(or_(likezip, likerar))
     return query.filter(likezip)
 
-def _archive_filename_query(session, oclass, attr, rarfiles=False):
+def archive_filename_query(session, oclass, attr, rarfiles=False):
     query = session.query(oclass)
-    return _archive_filename_filter(query, oclass, attr, rarfiles=rarfiles)
+    return archive_filename_filter(query, oclass, attr, rarfiles=rarfiles)
 
     
-def get_archive_files_query(session, rarfiles=False):
-    return _archive_filename_query(session,
-                                   AnnexFile, 'name', rarfiles=rarfiles)
-    
+def get_annexed_archives_query(session, rarfiles=False):
+    return archive_filename_query(session, AnnexFile,
+                                  'name', rarfiles=rarfiles)
+
+def get_entry_archives_query(session, rarfiles=False):
+    return archive_filename_query(session, ArchiveEntry,
+                                  'filename', rarfiles=rarfiles)
 
 
 
 def get_archive_files_new(query, rarfiles=False):
-    q =  _archive_filename_filter(query, AnnexFile, 'name',
+    q =  archive_filename_filter(query, AnnexFile, 'name',
                                   rarfiles=rarfiles)
     return q.all()
 
@@ -107,12 +104,15 @@ def get_archive_entry_key(session, entry, oldkey=True):
 
         
 def insert_archive_file(session, afile, sha256sum=True,
-                        archive_data=None):
+                        archive_data=None, annexpath=None):
     archived = session.query(ArchiveFile).get(afile.id)
     if archived is None:
         print "need to archive", afile.name
         if archive_data is None:
-            entries = parse_archive_file(afile.name, sha256sum=sha256sum)
+            filename = afile.name
+            if annexpath is not None:
+                filename = os.path.join(annexpath, afile.name)
+            entries = parse_archive_file(filename, sha256sum=sha256sum)
         else:
             entries = archive_data['entries']
     else:
@@ -143,6 +143,26 @@ def insert_archive_file(session, afile, sha256sum=True,
         session.add(dbobj)
     session.commit()
     print "Successful commit of %s with %d entries" % (afile.name, len(entries))
+
+
+EXAMPLE_ARCHIVE_DATA = dict(
+    # don't keep database id
+    # don't keep database key_id
+    # this id should be filename -> <id>.json
+    id='SHA256-size-checksum',
+    archive_type='zip',
+    bytesize=12311,
+    entries=[],
+    # key and id are equivalent
+    key='SHA256-size-checksum',
+    # these are in annex file already
+    hashdirlower='',
+    hashdirmixed='',
+    humansize='',
+    keyname='checksum',
+    mtime=None,
+    name='filename.zip',
+    unicode_decode_error=False)
 
 
 def _export_archive_file_dbobject(archivefile):
@@ -317,7 +337,7 @@ def make_archive_entry_zipfile(session, entry):
                 outfile.write(block)
     return tzfilename
 
-def insert_archive_entry_archive_entry(session, archive_entry_id, entry):
+def insert_archive_entry_archive_entry(session, archive_entry, entry):
     pass
 
 
