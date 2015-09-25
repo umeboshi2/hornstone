@@ -16,6 +16,11 @@ from sqlalchemy import func
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
 
+# here is the common base
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base()
+
+
 # http://stackoverflow.com/questions/4617291/how-do-i-get-a-raw-compiled-sql-query-from-a-sqlalchemy-expression
 from sqlalchemy.sql import compiler
 from psycopg2.extensions import adapt as sqlescape
