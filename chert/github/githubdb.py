@@ -17,7 +17,8 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 
-from chert.alchemy import SerialBase
+from chert.alchemy import SerialBase, TimeStampMixin
+
 
 Base = declarative_base()
     
@@ -39,7 +40,7 @@ Base = declarative_base()
 
 vccol = Unicode(200)
 
-class GitHubUser(Base, SerialBase):
+class GitHubUser(TimeStampMixin, Base):
     __tablename__ = 'ghub_users'
     id = Column(BigInteger, primary_key=True)
     login = Column(vccol, unique=True)
@@ -57,7 +58,6 @@ class GitHubUser(Base, SerialBase):
     events_url = Column(vccol)
     received_events_url = Column(vccol)
     type = Column(vccol)
-    site_admin = Column(Boolean)
     name = Column(vccol)
     company = Column(vccol)
     blog = Column(vccol)
@@ -72,14 +72,12 @@ class GitHubUser(Base, SerialBase):
     created_at_gh = Column(DateTime)
     updated_at_gh = Column(DateTime)
     pickle = Column(PickleType)
-    created = Column(DateTime)
-    updated = Column(DateTime)
 
     
-class GitHubRepo(Base, SerialBase):
+class GitHubRepo(TimeStampMixin, Base):
     __tablename__ = 'ghub_repos'
     id = Column(BigInteger, primary_key=True)
-    owner_id = Column(BigInteger, ForeignKey('ghub_users.id')
+    owner_id = Column(BigInteger, ForeignKey('ghub_users.id'))
     name = Column(vccol)
     full_name = Column(vccol)
     description = Column(UnicodeText)
@@ -91,19 +89,16 @@ class GitHubRepo(Base, SerialBase):
     html_url = Column(vccol)
     has_issues = Column(Boolean)
     has_wiki = Column(Boolean)
-    has_pages = Column(Boolean)
     has_downloads = Column(Boolean)
     size = Column(Integer)
     forks_count = Column(Integer)
     stargazers_count = Column(Integer)
     open_issues_count = Column(Integer)
-    pushed_at_gh = Column(DateTime)
+    pushed_at = Column(DateTime)
     created_at_gh = Column(DateTime)
     updated_at_gh = Column(DateTime)
     pickle = Column(PickleType)
-    created = Column(DateTime)
-    updated = Column(DateTime)
-    
+     
     
     
 ####################################
