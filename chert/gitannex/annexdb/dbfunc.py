@@ -339,9 +339,7 @@ def populate_database(session):
     add_files(session, kl, find_output_filename)
     session.commit()
     os.remove(find_output_filename)
-    populate_whereis(session)
-    
-                     
+    #populate_whereis(session)
 
 
 ################################
