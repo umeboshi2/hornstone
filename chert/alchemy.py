@@ -49,6 +49,7 @@ class SerialBase(object):
                 pytype = column.type.python_type
             except NotImplementedError:
                 print "NOTIMPLEMENTEDERROR", column.type
+                continue
             value = getattr(self, name)
             if pytype is datetime or pytype is date:
                 if value is not None:
