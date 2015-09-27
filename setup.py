@@ -11,6 +11,8 @@ requires = [
     'lxml',
     'mechanize',
     'transaction',     # I am not sure if I should use this or not
+    'rarfile',
+    'unipath',
 ]
 
 setup(name='chert',
@@ -27,9 +29,7 @@ A bunch of rocks""",
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=True,
-      install_requires=[
-          # -*- Extra requirements: -*-
-      ],
+      install_requires=requires,
       entry_points="""
       # -*- Entry points: -*-
       """,
