@@ -38,7 +38,10 @@ class RepoManager(object):
             reponame = os.path.join('others', dbrepo.name)
         reponame = os.path.join(self.repo_path, '%s.git' % reponame)
         return reponame
-    
+
+    def local_repo_exists(self, dbrepo):
+        return os.path.isdir(self.local_repo(dbrepo))
+
     def clone_repo(self, dbrepo, reponame=None, size_limit=None):
         if size_limit is not None:
             if dbrepo.size > size_limit:
