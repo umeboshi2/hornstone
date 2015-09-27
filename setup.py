@@ -3,6 +3,16 @@ import sys, os
 
 version = '0.0'
 
+requires = [
+    'SQLAlchemy',
+    'psycopg2',        # dbapi for postgresql
+    'requests',
+    'beautifulsoup4',
+    'lxml',
+    'mechanize',
+    'transaction',     # I am not sure if I should use this or not
+]
+
 setup(name='chert',
       version=version,
       description="A bunch of rocks",
