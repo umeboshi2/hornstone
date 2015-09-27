@@ -13,6 +13,7 @@ requires = [
     'transaction',     # I am not sure if I should use this or not
     'rarfile',
     'unipath',
+    'PyGithub',
 ]
 
 setup(name='chert',
