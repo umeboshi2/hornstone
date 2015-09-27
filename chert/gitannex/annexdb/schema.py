@@ -17,9 +17,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 
-from chert.alchemy import SerialBase
-
-Base = declarative_base()
+from chert.alchemy import SerialBase, Base
     
 
 ####################################
@@ -30,7 +28,7 @@ GitAnnexBackendType = Enum('SHA256', 'SHA256E',
                            name='gitannex_backend_type_enum')
 
 ArchiveType = Enum('zip', 'rar', '7z',
-                   name='archive_file_type_enum')
+                   name='ga_archive_file_type_enum')
 
 AnnexRepositoryTrustType = Enum('trusted', 'semitrusted', 'untrusted', 'dead',
                                  name='gitannex_repository_trust_type')
@@ -40,22 +38,22 @@ AnnexRepositoryTrustType = Enum('trusted', 'semitrusted', 'untrusted', 'dead',
 ####################################
 #
 class AnnexRepository(Base,SerialBase):
-    __tablename__ = 'annex_repositories'
+    __tablename__ = 'ga_annex_repositories'
     id = Column(Integer, primary_key=True)
-    name = Column(Unicode(200), unique=True)
+    name = Column(Unicode(200))
     uuid = Column(Unicode(40), unique=True)
     trust = Column(AnnexRepositoryTrustType, default='semitrusted')
     
-class AnnexKey(Base, SerialBase):
-    __tablename__ = "annex_keys"
+class AnnexKey(SerialBase, Base):
+    __tablename__ = "ga_annex_keys"
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
 
-class AnnexFile(Base, SerialBase):
-    __tablename__ = "annex_files"
+class AnnexFile(SerialBase, Base):
+    __tablename__ = "ga_annex_files"
     id = Column(Integer, primary_key=True)
     name = Column(UnicodeText, unique=True)
-    key_id = Column(Integer, ForeignKey('annex_keys.id'))
+    key_id = Column(Integer, ForeignKey('ga_annex_keys.id'))
     backend = Column(GitAnnexBackendType)
     bytesize = Column(BigInteger)
     humansize = Column(Unicode(50))
@@ -67,30 +65,30 @@ class AnnexFile(Base, SerialBase):
     unicode_decode_error = Column(Boolean)
     
 
-class RepoFile(Base, SerialBase):
-    __tablename__ = "annex_repo_files"
-    file_id = Column(Integer, ForeignKey('annex_files.id'),
+class RepoFile(SerialBase, Base):
+    __tablename__ = "ga_annex_repo_files"
+    file_id = Column(Integer, ForeignKey('ga_annex_files.id'),
                      primary_key=True)
-    repo_id = Column(Integer, ForeignKey('annex_repositories.id'),
+    repo_id = Column(Integer, ForeignKey('ga_annex_repositories.id'),
                      primary_key=True)
     
-class ArchiveFile(Base, SerialBase):
-    __tablename__ = "archive_files"
-    id = Column(Integer, ForeignKey('annex_files.id'), primary_key=True)
+class ArchiveFile(SerialBase, Base):
+    __tablename__ = "ga_archive_files"
+    id = Column(Integer, ForeignKey('ga_annex_files.id'), primary_key=True)
     archive_type = Column(ArchiveType)
 
-class ArchiveEntryKey(Base, SerialBase):
-    __tablename__ = "archive_entry_keys"
+class ArchiveEntryKey(SerialBase, Base):
+    __tablename__ = "ga_archive_entry_keys"
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
     
 
-class ArchiveEntry(Base, SerialBase):
-    __tablename__ = "archive_entries"
+class ArchiveEntry(SerialBase, Base):
+    __tablename__ = "ga_archive_entries"
     id = Column(Integer, primary_key=True)
-    archive_id = Column(Integer, ForeignKey('archive_files.id'))
+    archive_id = Column(Integer, ForeignKey('ga_archive_files.id'))
     entry_id = Column(Integer)
-    key_id = Column(Integer, ForeignKey('archive_entry_keys.id'))
+    key_id = Column(Integer, ForeignKey('ga_archive_entry_keys.id'))
     archive_type = Column(ArchiveType)
     bytesize = Column(BigInteger)
     sha256sum = Column(Unicode(100))
