@@ -1,11 +1,69 @@
 import os
 import uuid as UUID
+import hashlib
+from cStringIO import StringIO
 
 #from useless.base.path import path
 from unipath.path import Path as path
 from unipath import FILES, DIRS, LINKS
 
+from chert.base import get_sha256sum, get_sha256sum_string
+
 FILE_EXTENSIONS = ['jpg', 'png', 'gif']
+
+class ImageRepo(object):
+    def __init__(self, repo_path):
+        self.repo_path = path(repo_path)
+
+    def _get_top_bottom(self, checksum):
+        return tuple(checksum.split(h[2:-2]))
+
+    def _repo_dir(self, checksum):
+        top, bottom = self._get_top_bottom(checksum)
+        return os.path.join(self.repo_path, top, bottom)
+    
+    def relname(self, checksum):
+        #top, bottom = self._get_top_bottom(checksum)
+        #return os.path.join(top, bottom, checksum)
+        return checksum
+
+    def filename(self, checksum):
+        #dirname = self._repo_dir(checksum)
+        #return os.path.join(dirname, checksum)
+        return os.path.join(self.repo_path, checksum)
+
+    def file_exists(self, checksum):
+        filename = self.filename(checksum)
+        return os.path.isfile(filename)
+
+    def get_checksum_content(self, content):
+        return get_sha256sum_string(content)
+    
+    
+    def import_content(self, content):
+        checksum = self.get_checksum_content(content)
+        filename = self.filename(checksum)
+        if os.path.isfile(filename):
+            raise RuntimeError, "File already exists %s" % checksum
+        with file(filename, 'wb') as outfile:
+            outfile.write(content)
+
+    def open(self, checksum, mode='rb'):
+        filename = self.filename(checksum)
+        return file(filename, mode)
+    
+    def delete(self, checksum):
+        if self.file_exists(checksum):
+            os.remove(self.filename(checksum))
+
+    def delete_all(self):
+        for basename in os.listdir(self.repo_path):
+            filename = os.path.join(self.repo_path, basename)
+            if os.path.isfile(filename):
+                os.remove(filename)
+                
+        
+    
 
 class UrlRepo(object):
     def __init__(self, repo_path):

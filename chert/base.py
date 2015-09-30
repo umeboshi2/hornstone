@@ -23,6 +23,11 @@ def get_sha256sum(fileobj):
         block = fileobj.read(4096)
     return s.hexdigest()
 
+def get_sha256sum_string(string):
+    s = hashlib.new('sha256')
+    s.update(string)
+    return s.hexdigest()
+
 def remove_trailing_slash(pathname):
     while pathname.endswith('/'):
         pathname = pathname[:-1]
