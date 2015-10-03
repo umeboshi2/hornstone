@@ -5,6 +5,7 @@ import subprocess
 
 from unipath.path import Path as path
 from unipath import FILES, DIRS, LINKS
+from git import Repo
 
 from .githubdb import GitHubUser, GitHubRepo
 
@@ -22,7 +23,7 @@ class RepoManager(object):
         self.repo_path = repo_path
         
 
-    def set_github_clien(self, ghclient):
+    def set_github_client(self, ghclient):
         self.ghclient = ghclient
         
 
@@ -32,7 +33,7 @@ class RepoManager(object):
         return q.all()
     
 
-    def local_repo(self, dbrepo):
+    def local_reponame(self, dbrepo):
         reponame = dbrepo.full_name
         if not reponame.startswith(self.user.login):
             reponame = os.path.join('others', dbrepo.name)
@@ -40,23 +41,32 @@ class RepoManager(object):
         return reponame
 
     def local_repo_exists(self, dbrepo):
-        return os.path.isdir(self.local_repo(dbrepo))
+        return os.path.isdir(self.local_reponame(dbrepo))
 
+    def destroy_repo(self, dbrepo):
+        if self.local_repo_exists(dbrepo):
+            dirname = self.local_reponame(dbrepo)
+            cmd = ['rm', '-fr', str(dirname)]
+            subprocess.check_call(cmd)
+            
     def clone_repo(self, dbrepo, reponame=None, size_limit=None):
         if size_limit is not None:
             if dbrepo.size > size_limit:
                 print "%s too big." % dbrepo.full_name, dbrepo.size
                 return
-        ssh_url = dbrepo.pickle.ssh_url
+        clone_url = dbrepo.pickle.clone_url
         if reponame is None:
-            reponame = self.local_repo(dbrepo)
-        cmd = ['git', 'clone', '--bare', ssh_url, reponame]
-        subprocess.check_call(cmd)
+            reponame = self.local_reponame(dbrepo)
+        repo = Repo.clone_from(clone_url, reponame, bare=True)
+        return repo
 
-
+    def local_repo(self, dbrepo):
+        return Repo(self.local_reponame(dbrepo))
+    
+            
     def _clone_repolist(self, repolist, size_limit=None):
         for repo in repolist:
-            reponame = self.local_repo(repo)
+            reponame = self.local_reponame(repo)
             if not os.path.isdir(reponame):
                 self.clone_repo(repo,
                                 reponame=reponame,
@@ -72,3 +82,6 @@ class RepoManager(object):
         self._clone_repolist(others, size_limit=size_limit)
         
                 
+    def update_from_github(self):
+        pass
+    

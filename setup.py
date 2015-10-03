@@ -14,6 +14,7 @@ requires = [
     'rarfile',
     'unipath',
     'PyGithub',
+    'gitpython',
 ]
 
 setup(name='chert',
