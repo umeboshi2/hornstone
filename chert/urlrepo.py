@@ -25,36 +25,36 @@ class ImageRepo(object):
     def relname(self, checksum):
         #top, bottom = self._get_top_bottom(checksum)
         #return os.path.join(top, bottom, checksum)
-        return checksum
+        return '%s.%s' % (checksum, ext)
 
-    def filename(self, checksum):
+    def filename(self, checksum, ext):
         #dirname = self._repo_dir(checksum)
         #return os.path.join(dirname, checksum)
-        return os.path.join(self.repo_path, checksum)
+        return os.path.join(self.repo_path, '%s.%s' % (checksum, ext))
 
-    def file_exists(self, checksum):
-        filename = self.filename(checksum)
+    def file_exists(self, checksum, ext):
+        filename = self.filename(checksum, ext)
         return os.path.isfile(filename)
 
     def get_checksum_content(self, content):
         return get_sha256sum_string(content)
     
     
-    def import_content(self, content):
+    def import_content(self, content, ext):
         checksum = self.get_checksum_content(content)
-        filename = self.filename(checksum)
+        filename = self.filename(checksum, ext)
         if os.path.isfile(filename):
             raise RuntimeError, "File already exists %s" % checksum
         with file(filename, 'wb') as outfile:
             outfile.write(content)
 
-    def open(self, checksum, mode='rb'):
-        filename = self.filename(checksum)
+    def open(self, checksum, ext, mode='rb'):
+        filename = self.filename(checksum, ext)
         return file(filename, mode)
     
-    def delete(self, checksum):
-        if self.file_exists(checksum):
-            os.remove(self.filename(checksum))
+    def delete(self, checksum, ext):
+        if self.file_exists(checksum, ext):
+            os.remove(self.filename(checksum, ext))
 
     def delete_all(self):
         for basename in os.listdir(self.repo_path):
