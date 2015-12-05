@@ -26,14 +26,6 @@ def get_command_output(cmd):
     return proc.stdout.read()
 
 
-def assert_git_directory(directory):
-    directory = path(directory)
-    here = path.cwd()
-    os.chdir(directory)
-    cmd = ['git', 'rev-parse']
-    subprocess.check_call(cmd)
-    os.chdir(here)
-
 def make_key(kdict):
     return '%(method)s-s%(size)d--%(checksum)s' % kdict
 
