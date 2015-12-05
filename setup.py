@@ -34,5 +34,8 @@ A bunch of rocks""",
       install_requires=requires,
       entry_points="""
       # -*- Entry points: -*-
+      [console_scripts]
+      tmbnex-update-repos = chert.scripts.tmbnex_update_repos:main
+      tmbnex-create-annex = chert.scripts.tmbnex_create_annex
       """,
       )
