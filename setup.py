@@ -37,5 +37,6 @@ A bunch of rocks""",
       [console_scripts]
       tmbnex-update-repos = chert.scripts.tmbnex_update_repos:main
       tmbnex-create-annex = chert.scripts.tmbnex_create_annex
+      update-from-cypress = chert.scripts.update_from_cypress:main
       """,
       )
