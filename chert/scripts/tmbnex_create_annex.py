@@ -3,15 +3,11 @@ import os, sys
 import subprocess
 import json
 import gzip
+import argparse
 
 from chert.config import config
+from chert.base import WorkingDirectory
 
-
-annex_prefix = config.get('tmbnex', 'create_parent_path')
-
-def addurl(url, filename):
-    cmd = ['git-annex', 'addurl', '--file', filename, url]
-    subprocess.check_call(cmd)
 
 def get_posts_and_blogname(postsfile):
     print "POSTSFILE", postsfile
@@ -28,37 +24,39 @@ def create_annex(annexdir):
         cmd = ['git', 'init', annexdir]
         subprocess.check_call(cmd)
 
-    oldpwd = os.getcwd()
-    os.chdir(annexdir)
-
-    if not os.path.isdir('.git/annex'):
-        cmd = ['git-annex', 'init']
-        subprocess.check_call(cmd)
-    os.chdir(oldpwd)
+    with WorkingDirectory(annexdir) as wd:
+        print "CWD", os.getcwd()
+        if not os.path.isdir('.git/annex'):
+            print "init git-annex"
+            cmd = ['git-annex', 'init']
+            subprocess.check_call(cmd)
     
 
-args = sys.argv[1:]
-if not len(args):
-    raise RuntimeError, "need a file"
-
-postsfile = args[0]
-blogname, posts = get_posts_and_blogname(postsfile)
-
-
-annexdir = os.path.join(annex_prefix, blogname)
-create_annex(annexdir)
+def add_post_urls(posts):
+    for filename, url in posts.items():
+        if not os.path.isfile(filename):
+            cmd = ['git-annex', 'addurl', '--file', filename, url]
+            subprocess.call(cmd)
+        else:
+            print "File exists", filename
 
 
-for filename, url in posts.items():
-    if not os.path.isfile(filename):
-        cmd = ['git-annex', 'addurl', '--file', filename, url]
-        subprocess.call(cmd)
-    else:
-        print "File exists", filename
-
-
-subprocess.check_call(['git-annex', 'sync'])
-
-os.chdir(oldpwd)
-
+def sync_annex(directory):
+    with WorkingDirectory(directory) as wd:
+        subprocess.check_call(['git-annex', 'sync'])
     
+
+def main():
+    annex_prefix = config.get('tmbnex', 'create_parent_path')
+    annex_prefix = os.path.expanduser(annex_prefix)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('postsfile')
+    
+    args = parser.parse_args()
+
+    blogname, posts = get_posts_and_blogname(args.postsfile)
+    annexdir = os.path.join(annex_prefix, blogname)
+    create_annex(annexdir)
+    with WorkingDirectory(annexdir) as wd:
+        add_post_urls(posts)
+        subprocess.check_call(['git-annex', 'sync'])
