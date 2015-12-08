@@ -73,4 +73,7 @@ def main():
         else:
             sync_annex(dest)
         init_mybook_remote(dest)
-    
+        cmd = ['git', '-C', dest, 'gc']
+        print "Garbage Collection for", repo
+        subprocess.check_call(cmd)
+        
