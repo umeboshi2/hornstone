@@ -10,6 +10,9 @@ import json
 from unipath.path import Path as path
 from unipath import FILES, DIRS, LINKS
 
+from chert.base import WorkingDirectory
+from chert.base import assert_git_directory
+
 zero_key_old = 'SHA256-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 
 zero_key_prefix = 'SHA256E-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
@@ -191,3 +194,46 @@ def parse_json_output(lines, counter=None,
             convert_to_unicode=convert_to_unicode,
             verbose_warning=verbose_warning)
         print "DO SOMETHING WITH DATA", data
+
+
+######################################
+# more git-annex functions
+######################################
+class AnnexExistsError(Exception):
+    pass
+
+
+def sync_annex(directory, hosts=None):
+    with WorkingDirectory(directory) as wd:
+        cmd = ['git-annex', 'sync']
+        if hosts is not None:
+            cmd += hosts
+        cmd = ' '.join(cmd)
+        subprocess.check_call(cmd, shell=True)
+
+
+def gitannex_init(directory, name=None):
+    assert_git_directory(directory)
+    with WorkingDirectory(directory) as wd:
+        if os.path.isdir('.git/annex'):
+            raise AnnexExistsError, "annex already appears initialized"
+        if name is None:
+            name = socket.gethostname()
+        cmd = ['git-annex', 'init', name]
+        subprocess.check_call(cmd)
+    sync_annex(directory)
+        
+def init_rsync_remote(directory, name, rsyncurl, encryption=None):
+    if encryption is None:
+        encryption = 'none'
+    initcmd = ['git-annex', 'initremote', name, 'type=rsync',
+               'rsyncurl=%s' % rsyncurl, 'encryption=%s' % encryption]
+    enablecmd = ['git-annex', 'enableremote', name,
+                 'rsyncurl=%s' % rsyncurl]
+    with WorkingDirectory(directory) as wd:
+        if rsyncurl not in file('.git/config').read():
+            retcode = subprocess.call(initcmd)
+            if retcode:
+                print "INITREMOTE failed, trying ENABLEREMOTE"
+                subprocess.call(enablecmd)
+                
