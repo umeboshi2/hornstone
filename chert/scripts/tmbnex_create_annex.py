@@ -5,8 +5,12 @@ import json
 import gzip
 import argparse
 
-from chert.config import config
 from chert.base import WorkingDirectory
+from chert.gitannex import gitannex_init, sync_annex
+from chert.gitannex import AnnexExistsError
+from chert.gitannex import init_rsync_remote
+
+from chert.config import config
 
 
 def get_posts_and_blogname(postsfile):
@@ -19,7 +23,7 @@ def get_posts_and_blogname(postsfile):
     posts = json.load(gzip.GzipFile(postsfile))
     return blogname, posts
 
-def create_annex(annexdir):
+def create_annex_Orig(annexdir):
     if not os.path.isdir(annexdir):
         cmd = ['git', 'init', annexdir]
         subprocess.check_call(cmd)
@@ -31,20 +35,24 @@ def create_annex(annexdir):
             cmd = ['git-annex', 'init']
             subprocess.check_call(cmd)
     
+def create_annex(annexdir):
+    if not os.path.isdir(annexdir):
+        cmd = ['git', 'init', annexdir]
+        subprocess.check_call(cmd)
+    try:
+        gitannex_init(directory, name='origin')
+    except AnnexExistsError:
+        print "Annex already initialized"
+    
 
 def add_post_urls(posts):
     for filename, url in posts.items():
-        if not os.path.isfile(filename):
+        if not os.path.islink(filename):
             cmd = ['git-annex', 'addurl', '--file', filename, url]
             subprocess.call(cmd)
         else:
             print "File exists", filename
 
-
-def sync_annex(directory):
-    with WorkingDirectory(directory) as wd:
-        subprocess.check_call(['git-annex', 'sync'])
-    
 
 def main():
     annex_prefix = config.get('tmbnex', 'create_parent_path')

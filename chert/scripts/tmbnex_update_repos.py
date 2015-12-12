@@ -7,55 +7,30 @@ import socket
 from chert.base import clone_repo, update_repo
 from chert.base import assert_git_directory
 from chert.base import WorkingDirectory
+from chert.base import parse_config_lines
+
+from chert.gitannex import sync_annex, gitannex_init
+from chert.gitannex import init_rsync_remote
 
 from chert.config import config
 
+
 reposfile = os.path.expanduser(config.get('tmbnex', 'reposlist'))
 
-repos = [line.strip() for line in file(reposfile)
-         if line.strip() and not line.strip().startswith('#')]
+repos = parse_config_lines(reposfile)
 
 annexes = os.path.expanduser(config.get('tmbnex', 'local_annexdir'))
 
 origin = config.get('tmbnex', 'origin_prefix')
 
 
-    
-def sync_annex(directory, hosts=None):
-    with WorkingDirectory(directory) as wd:
-        cmd = ['git-annex', 'sync']
-        if hosts is not None:
-            cmd += hosts
-        cmd = ' '.join(cmd)
-        subprocess.check_call(cmd, shell=True)
+rsync_reponame = config.get('tmbnex', 'rsync_reponame')
+rsync_url = config.get('tmbnex', 'rsync_url')
 
-def init_mybook_remote(directory):
-    with WorkingDirectory(directory) as wd:
-        initcmd = ['git-annex', 'initremote', 'mybook', 'type=rsync',
-               'rsyncurl=mybooklive:/shares/tbannex', 'encryption=none',]
-        
-        enablecmd = ['git-annex', 'enableremote', 'mybook',
-                     'rsyncurl=mybooklive:/shares/tbannex']
-        if 'mybooklive:/shares/tbannex' not in file('.git/config').read():
-                retcode = subprocess.call(initcmd)
-                if retcode:
-                    subprocess.call(enablecmd)
-            
-    
-def gitannex_init(directory, name=None):
-    assert_git_directory(directory)
-    with WorkingDirectory(directory) as wd:
-        if os.path.isdir('.git/annex'):
-            raise RuntimeError, "already appears initialized"
-        if name is None:
-            name = socket.gethostname()
-        cmd = ['git-annex', 'init', name]
-        subprocess.check_call(cmd)
-    sync_annex(directory)
 
-def copy_to_mybook(directory):
+def copy_to_rsync_repo(directory):
     with WorkingDirectory(directory) as wd:
-        cmd = ['git-annex', 'copy', '--to', 'mybook']
+        cmd = ['git-annex', 'copy', '--to', rsync_reponame]
         subprocess.check_call(cmd)
         
 
@@ -72,8 +47,9 @@ def main():
             gitannex_init(dest)
         else:
             sync_annex(dest)
-        init_mybook_remote(dest)
-        cmd = ['git', '-C', dest, 'gc']
-        print "Garbage Collection for", repo
-        subprocess.check_call(cmd)
+        init_rsync_remote(dest, rsync_reponame, rsync_url)
+        if 'COLLECT_THE_GARBAGE' in os.environ:
+            cmd = ['git', '-C', dest, 'gc']
+            print "Garbage Collection for", repo
+            subprocess.check_call(cmd)
         
