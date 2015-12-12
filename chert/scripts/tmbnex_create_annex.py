@@ -40,7 +40,7 @@ def create_annex(annexdir):
         cmd = ['git', 'init', annexdir]
         subprocess.check_call(cmd)
     try:
-        gitannex_init(directory, name='origin')
+        gitannex_init(annexdir, name='origin')
     except AnnexExistsError:
         print "Annex already initialized"
     
