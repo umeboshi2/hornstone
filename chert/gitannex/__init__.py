@@ -4,6 +4,7 @@ import cPickle as Pickle
 from cStringIO import StringIO
 import subprocess
 import json
+import socket
 
 
 #from useless.base.path import path
