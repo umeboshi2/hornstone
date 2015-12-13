@@ -35,8 +35,8 @@ A bunch of rocks""",
       entry_points="""
       # -*- Entry points: -*-
       [console_scripts]
-      tmbnex-update-repos = chert.scripts.tmbnex_update_repos:main
-      tmbnex-create-annex = chert.scripts.tmbnex_create_annex:main
-      update-from-cypress = chert.scripts.update_from_cypress:main
+      #tmbnex-update-repos = chert.scripts.tmbnex_update_repos:main
+      #tmbnex-create-annex = chert.scripts.tmbnex_create_annex:main
+      #update-from-cypress = chert.scripts.update_from_cypress:main
       """,
       )
