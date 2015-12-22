@@ -50,15 +50,6 @@ def chunks(l, n):
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
 
-def get_sha256sum_orig(fileobj):
-    s = hashlib.new('sha256')
-    while True:
-        block = fileobj.read(4096)
-        if not block:
-            break
-        s.update(block)
-    return s.hexdigest()
-
 def get_sha256sum(fileobj):
     s = hashlib.new('sha256')
     block = fileobj.read(4096)
@@ -72,78 +63,16 @@ def get_sha256sum_string(string):
     s.update(string)
     return s.hexdigest()
 
+def trailing_slash(dirname):
+    if not dirname.endswith('/'):
+        return '%s/' % dirname
+    return dirname
+
 def remove_trailing_slash(pathname):
     while pathname.endswith('/'):
         pathname = pathname[:-1]
     return pathname
 
-def assert_git_directory(directory):
-    directory = path(directory)
-    assert directory.isdir()
-    cmd = ['git', '-C', directory, 'rev-parse']
-    subprocess.check_call(cmd)
-
-def clone_repo(uri, dest, branch=None, quiet=True, bare=False,
-               mirror=False, verbose=False):
-    cmd = ['git', 'clone']
-    if quiet:
-        cmd.append('--quiet')
-    if branch is not None:
-        cmd += ['--branch', branch]
-    if bare:
-        cmd.append('--bare')
-    if mirror:
-        cmd.append('--mirror')
-    cmd += [uri, dest]
-    if verbose:
-        print "Clone command: %s" % ' '.join(cmd)
-    subprocess.check_call(cmd)
-
-def fetch_all(directory, quiet=False):
-    assert_git_directory(directory)
-    prefix = ['git', '-C', directory]
-    cmd = prefix + ['fetch', '--all']
-    subprocess.check_call(cmd)
-    
-def update_repo(directory, quiet=False, all=True):
-    assert_git_directory(directory)
-    assert os.path.isdir(directory)
-    prefix = ['git', '-C', directory]
-    current_sha_cmd = prefix + ['rev-parse', 'HEAD']
-    current_sha = subprocess.check_output(current_sha_cmd).strip()
-    cmd = prefix + ['fetch']
-    if quiet:
-        cmd.append('--quiet')
-    if all:
-        cmd.append('--all')
-    upstream_sha_cmd = prefix + ['rev-parse', 'FETCH_HEAD']
-    upstream_sha = subprocess.check_output(upstream_sha_cmd).strip()
-    if current_sha != upstream_sha:
-        subprocess.check_call(prefix + ['merge', upstream_sha])
-    
-
-def update_mirrored_repo(directory):
-    cmd = ['git', '-C', directory, 'remote', 'update']
-    subprocess.check_call(cmd)
-    
-def check_remote_present(directory, name):
-    assert_git_directory(directory)
-    oldpwd = os.getcwd()
-    os.chdir(directory)
-    cmd = ['git-annex', 'info', '--fast', '--json', name]
-    out = subprocess.check_output(cmd)
-    os.chdir(oldpwd)
-    return json.loads(out)
-
-def add_rsync_remote(directory, name, url):
-    assert_git_directory(directory)
-    oldpwd = os.getcwd()
-    os.chdir(directory)
-    #cmd = ['git-annex', 'info', '--fast', '--json', name]
-    
-    out = subprocess.check_output(cmd)
-    os.chdir(oldpwd)
-    return json.loads(out)
     
 
 def parse_config_lines(filename):
