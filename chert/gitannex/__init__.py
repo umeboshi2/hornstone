@@ -12,7 +12,7 @@ from unipath.path import Path as path
 from unipath import FILES, DIRS, LINKS
 
 from chert.base import WorkingDirectory
-from chert.base import assert_git_directory
+from chert.gitfunc import assert_git_directory
 
 zero_key_old = 'SHA256-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 
@@ -223,18 +223,33 @@ def gitannex_init(directory, name=None):
         cmd = ['git-annex', 'init', name]
         subprocess.check_call(cmd)
     sync_annex(directory)
-        
-def init_rsync_remote(directory, name, rsyncurl, encryption=None):
+
+def _encryption(encryption=None):
     if encryption is None:
         encryption = 'none'
-    initcmd = ['git-annex', 'initremote', name, 'type=rsync',
-               'rsyncurl=%s' % rsyncurl, 'encryption=%s' % encryption]
-    enablecmd = ['git-annex', 'enableremote', name,
-                 'rsyncurl=%s' % rsyncurl]
-    with WorkingDirectory(directory) as wd:
-        if rsyncurl not in file('.git/config').read():
+    return encryption
+
+
+def _init_remote(working_directory, name, rtype, **kwargs):
+    initcmd = ['git-annex', 'initremote', name, 'type=%s' % rtype]
+    enablecmd = ['git-annex', 'enableremote', name]
+    args = ['%s=%s' % (k,v) for k,v in kwargs.items()]
+    initcmd += args
+    #print "INITCMD", initcmd
+    config_marker = '[remote "%s"]' % name
+    with WorkingDirectory(working_directory) as wd:
+        if config_marker not in file('.git/config').read():
             retcode = subprocess.call(initcmd)
             if retcode:
-                print "INITREMOTE failed, trying ENABLEREMOTE"
+                print "INITREMOTE failed, attempt enable"
                 subprocess.call(enablecmd)
                 
+def init_dir_remote(working_directory, name, directory, encryption=None):
+    kw = dict(encryption=_encryption(encryption), directory=directory)
+    _init_remote(working_directory, name, 'directory', **kw)
+    
+
+def init_rsync_remote(working_directory, name, rsyncurl, encryption=None):
+    kw = dict(encryption=_encryption(encryption),
+              rsyncurl=rsyncurl)
+    _init_remote(working_directory, name, 'rsync', **kw)
