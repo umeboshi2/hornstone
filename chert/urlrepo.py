@@ -1,7 +1,5 @@
 import os
 import uuid as UUID
-import hashlib
-from cStringIO import StringIO
 
 #from useless.base.path import path
 from unipath.path import Path as path

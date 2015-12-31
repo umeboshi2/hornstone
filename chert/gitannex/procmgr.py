@@ -10,11 +10,6 @@ import json
 from unipath.path import Path as path
 from unipath import FILES, DIRS, LINKS
 
-zero_key_old = 'SHA256-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-
-zero_key_prefix = 'SHA256E-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-
-
 
 class GitAnnexProcManager(object):
     def __init__(self, annex_directory):
