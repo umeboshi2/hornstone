@@ -1,6 +1,6 @@
 import os
 import subprocess
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 
 main_config = ConfigParser()
 main_config.read('config/main.ini')

@@ -1,7 +1,7 @@
 import os, sys
 import hashlib
-import cPickle as Pickle
-from cStringIO import StringIO
+import pickle as Pickle
+from io import StringIO
 import subprocess
 import json
 
@@ -14,7 +14,7 @@ from unipath import FILES, DIRS, LINKS
 class GitAnnexProcManager(object):
     def __init__(self, annex_directory):
         if not os.path.isdir(annex_directory):
-            raise RuntimeError, "No such directory %s" % annex_directory
+            raise RuntimeError("No such directory %s" % annex_directory)
         self.annex_directory = annex_directory
         
 
@@ -32,7 +32,7 @@ class GitAnnexProcManager(object):
     
     def make_find_proc(self, allrepos=True, inrepos=None):
         if inrepos is not None and len(inrepos):
-            raise RuntimeError, "make --and list of repos for find"            
+            raise RuntimeError("make --and list of repos for find")            
         cmd = ['git-annex', 'find', '--json']
         if allrepos:
             cmd += ['--include', '*']

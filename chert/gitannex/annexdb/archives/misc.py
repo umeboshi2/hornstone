@@ -107,7 +107,7 @@ def insert_archive_file(session, afile, sha256sum=True,
                         archive_data=None, annexpath=None):
     archived = session.query(ArchiveFile).get(afile.id)
     if archived is None:
-        print "need to archive", afile.name
+        print("need to archive", afile.name)
         if archive_data is None:
             filename = afile.name
             if annexpath is not None:
@@ -116,7 +116,7 @@ def insert_archive_file(session, afile, sha256sum=True,
         else:
             entries = archive_data['entries']
     else:
-        print "Archive should be available"
+        print("Archive should be available")
         return
     if archive_data is None:
         archive_type = get_archive_type(afile.name)
@@ -142,7 +142,7 @@ def insert_archive_file(session, afile, sha256sum=True,
                     setattr(dbobj, att, dt)
         session.add(dbobj)
     session.commit()
-    print "Successful commit of %s with %d entries" % (afile.name, len(entries))
+    print("Successful commit of %s with %d entries" % (afile.name, len(entries)))
 
 
 EXAMPLE_ARCHIVE_DATA = dict(
@@ -176,7 +176,7 @@ def _export_archive_file_dbobject(archivefile):
     
 def export_archive_manifest(session, fileid=None, name=None):
     if fileid is None and name is None:
-        raise RuntimeError, "need either fileid or name"
+        raise RuntimeError("need either fileid or name")
     if fileid is not None:
         afile = session.query(ArchiveFile).get(fileid)
     elif name is not None:
@@ -189,7 +189,7 @@ def export_archive_manifest(session, fileid=None, name=None):
 def export_annexed_archive_data(session, annexed_file):
     data = annexed_file.serialize()
     if 'key' in data:
-        raise RuntimeError, "bad data %s" % data
+        raise RuntimeError("bad data %s" % data)
     data['key'] = annexed_file.key.name
     arfile = session.query(ArchiveFile).get(annexed_file.id)
     if arfile is not None:
@@ -216,7 +216,7 @@ def export_all_archives(session, zipfilename, fail_on_dupe=False):
     keys = list()
     with zipfile.ZipFile(zipfilename, 'w') as zfile:
         for afile in annexed_archives:
-            print "Exporting", afile.name
+            print("Exporting", afile.name)
             data = export_annexed_archive_data(session, afile)
             key = data['key']
             if key not in keys:
@@ -225,9 +225,9 @@ def export_all_archives(session, zipfilename, fail_on_dupe=False):
                 archive = afile.name
                 if fail_on_dupe:
                     tmpl = "Already have key %s for annexed archive %s"
-                    raise RuntimeError, tmpl % (key, archive)
+                    raise RuntimeError(tmpl % (key, archive))
                 else:
-                    print "Skipping duplicate annexed archive %s" % archive
+                    print("Skipping duplicate annexed archive %s" % archive)
                     continue
             arcname = '%s.json' % key
             fbytes = json.dumps(data)
@@ -240,13 +240,13 @@ def _get_annex_key(session, key, fail_on_duplicate_archives=False):
     try:
         annex_key = session.query(AnnexKey).filter_by(name=key).one()
     except NoResultFound:
-        raise RuntimeError, "No annexed file for %s" % key
+        raise RuntimeError("No annexed file for %s" % key)
     have_duplicates = len(annex_key.files) > 1
     if have_duplicates:
         dfiles = ', '.join((x.name for x in annex_key.files))
-        print "Duplicate archives in annex: %s" % dfiles
+        print("Duplicate archives in annex: %s" % dfiles)
     if fail_on_duplicate_archives and have_duplicates:
-        raise RuntimeError, "Duplicate archives in annex: %s" % dfiles
+        raise RuntimeError("Duplicate archives in annex: %s" % dfiles)
     return annex_key
 
 def import_annexed_archive_data(session, archive_data,

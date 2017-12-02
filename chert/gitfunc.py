@@ -25,7 +25,7 @@ def clone_repo(uri, dest, branch=None, quiet=True, bare=False,
         cmd.append('--mirror')
     cmd += [uri, dest]
     if verbose:
-        print "Clone command: %s" % ' '.join(cmd)
+        print("Clone command: %s" % ' '.join(cmd))
     subprocess.check_call(cmd)
 
 def fetch_all(directory, quiet=False):

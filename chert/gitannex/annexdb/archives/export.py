@@ -56,7 +56,7 @@ def _export_archive_file_dbobject(archivefile):
     
 def export_archive_manifest(session, fileid=None, name=None):
     if fileid is None and name is None:
-        raise RuntimeError, "need either fileid or name"
+        raise RuntimeError("need either fileid or name")
     if fileid is not None:
         afile = session.query(ArchiveFile).get(fileid)
     elif name is not None:
@@ -69,7 +69,7 @@ def export_archive_manifest(session, fileid=None, name=None):
 def export_annexed_archive_data(session, annexed_file):
     data = annexed_file.serialize()
     if 'key' in data:
-        raise RuntimeError, "bad data %s" % data
+        raise RuntimeError("bad data %s" % data)
     data['key'] = annexed_file.key.name
     arfile = session.query(ArchiveFile).get(annexed_file.id)
     if arfile is not None:
@@ -96,7 +96,7 @@ def export_all_archives(session, zipfilename, fail_on_dupe=False):
     keys = list()
     with zipfile.ZipFile(zipfilename, 'w') as zfile:
         for afile in annexed_archives:
-            print "Exporting", afile.name
+            print("Exporting", afile.name)
             data = export_annexed_archive_data(session, afile)
             key = data['key']
             if key not in keys:
@@ -105,9 +105,9 @@ def export_all_archives(session, zipfilename, fail_on_dupe=False):
                 archive = afile.name
                 if fail_on_dupe:
                     tmpl = "Already have key %s for annexed archive %s"
-                    raise RuntimeError, tmpl % (key, archive)
+                    raise RuntimeError(tmpl % (key, archive))
                 else:
-                    print "Skipping duplicate annexed archive %s" % archive
+                    print("Skipping duplicate annexed archive %s" % archive)
                     continue
             arcname = '%s.json' % key
             fbytes = json.dumps(data)

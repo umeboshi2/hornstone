@@ -45,7 +45,7 @@ def parse_archive_info(info, archive_type):
     for att in ARCHIVE_ATTRIBUTES[archive_type]:
         value = getattr(info, att)
         if type(value) is str:
-            value = unicode(value, errors='replace')
+            value = str(value, errors='replace')
         data[att] = value
     # handle CRC for file
     data['crc'] = info.CRC
@@ -59,7 +59,7 @@ def get_archive_type(filename):
     elif lname.endswith('.rar'):
         archive_type = 'rar'
     else:
-        raise RuntimeError, "unable to handle archive %s" % filename    
+        raise RuntimeError("unable to handle archive %s" % filename)    
     return archive_type
 
 
@@ -69,12 +69,12 @@ def get_extracted_info(parent_dir, fileinfo, sha256sum=False):
     try:
         extracted_name = path(parent_dir, filename)
     except UnicodeEncodeError:
-        print "UnicodeEncodeError with %s" % filename
+        print("UnicodeEncodeError with %s" % filename)
         filename = filename.encode('utf8')
         extracted_name = path(parent_dir, filename)
         # make sure extracted_name exists
         if not extracted_name.isfile():
-            raise RuntimeError, "%s is not a file" % extracted_name
+            raise RuntimeError("%s is not a file" % extracted_name)
     ifile = file(extracted_name)
     ifile.seek(0, 2)
     file_size = ifile.tell()
@@ -86,27 +86,27 @@ def get_extracted_info(parent_dir, fileinfo, sha256sum=False):
 
 
 def parse_rar_archive(filename, sha256sum=False):
-    print "Creating infolist for %s" % filename
+    print("Creating infolist for %s" % filename)
     with rarfile.RarFile(filename, 'r') as afile:
         infolist = afile.infolist()
-    print "Infolist created for %s" % filename
+    print("Infolist created for %s" % filename)
     tmpdir = tempfile.mkdtemp(prefix='extracted-rar-')
     cmd = ['rar', 'x', filename, tmpdir]
     subprocess.check_call(cmd)
     here = path.cwd()
     os.chdir(tmpdir)
     td = path(tmpdir)
-    print "Parsing info"
+    print("Parsing info")
     entries = list()
     for ainfo in infolist:
         if ainfo.isdir():
-            print "Skipping directory %s" % ainfo.filename
+            print("Skipping directory %s" % ainfo.filename)
             continue
         parsed = parse_archive_info(ainfo, 'rar')
         parsed['bytesize'] = ainfo.file_size
         size, cksum = get_extracted_info(td, ainfo, sha256sum=sha256sum)
         if size != ainfo.file_size:
-            raise RuntimeError, "Sizes don't match %s" % ainfo.filename
+            raise RuntimeError("Sizes don't match %s" % ainfo.filename)
         parsed['sha256sum'] = cksum
         entries.append(parsed)
     cmd = ['rm', '-fr', tmpdir]
@@ -134,6 +134,6 @@ def parse_archive_file(filename, sha256sum=False):
     try:
         return archive_parser[archive_type](filename, sha256sum=sha256sum)
     except zipfile.BadZipfile:
-        print "WARNING, bad zip file: %s" % filename
+        print("WARNING, bad zip file: %s" % filename)
         return list()
     

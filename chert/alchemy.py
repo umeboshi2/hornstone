@@ -32,8 +32,8 @@ def compile_query(query):
     comp.compile()
     enc = dialect.encoding
     params = {}
-    for k, v in comp.params.iteritems():
-        if isinstance(v, unicode):
+    for k, v in comp.params.items():
+        if isinstance(v, str):
             v = v.encode(enc)
         params[k] = sqlescape(v)
     return (comp.string.encode(enc) % params).decode(enc)

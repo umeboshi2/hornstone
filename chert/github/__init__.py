@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, sys
-from ConfigParser import ConfigParser
-import cPickle as Pickle
+from configparser import ConfigParser
+import pickle as Pickle
 
 from github import Github
 

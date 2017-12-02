@@ -51,7 +51,7 @@ def make_archive_entry_zipfile(session, entry, annexpath=None):
     if annexpath is not None:
         filename = os.path.join(annexpath, filename)
     if not filename.endswith('.zip'):
-        raise RuntimeError, "Need only zipfiles now"
+        raise RuntimeError("Need only zipfiles now")
     with zipfile.ZipFile(filename, 'r') as zfile:
         info = zfile.getinfo(entry.filename)
         prefix = 'gitannex-archive-entry-archive-'

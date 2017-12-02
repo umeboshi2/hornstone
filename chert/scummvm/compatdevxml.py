@@ -1,5 +1,5 @@
 import os, sys
-import cPickle as Pickle
+import pickle as Pickle
 import xml.etree.ElementTree as ET
 import csv
 
@@ -11,7 +11,7 @@ scummvm_compat_xml_url = 'https://github.com/scummvm/scummvm-web/raw/master/data
 def get_scummvm_compat_xml_remote(url):
     response = requests.get(url)
     if not response.ok:
-        raise RuntimeError, "request returned %s" % response
+        raise RuntimeError("request returned %s" % response)
     return response.content
 
 
@@ -22,13 +22,13 @@ def get_scummvm_compat_xml(url):
         with file(filename, 'w') as outfile:
             outfile.write(content)
     else:
-        print "%s exists." % filename
+        print("%s exists." % filename)
 
 def get_one_element(element, tagname):
     elements = element.findall(tagname)
     if len(elements) != 1:
         msg = "Unable to get one element %s with tag %s"
-        raise RuntimeError, msg % (element, tagname)
+        raise RuntimeError(msg % (element, tagname))
     return elements[0]
 
 def parse_game_element(element):
@@ -41,14 +41,14 @@ def parse_company_tag(element, gdict):
     name_el = get_one_element(element, 'name')
     company = name_el.text
     if company in gdict:
-        raise RuntimeError, "Company %s already in dictionary" % company
+        raise RuntimeError("Company %s already in dictionary" % company)
     gdict[company] = dict()
     games_el = get_one_element(element, 'games')
     for el in games_el:
         data = parse_game_element(el)
         target = data['target']
         if target in gdict[company]:
-            raise RuntimeError, "Duplicate target %s" % target
+            raise RuntimeError("Duplicate target %s" % target)
         gdict[company][data['target']] = data
 
 
@@ -63,7 +63,7 @@ def make_target_data(filename):
     for company in games:
         for target in games[company]:
             if target in targets:
-                raise RuntimeError, "Already processed target %s" % target
+                raise RuntimeError("Already processed target %s" % target)
             targets[target] = games[company][target]
             targets[target]['company'] = company
     return targets
@@ -73,8 +73,8 @@ def make_target_csv(targets):
     filename = 'targets.csv'
     if os.path.isfile(filename):
         return
-    keys = targets.keys()
-    print "Targets", len(keys)
+    keys = list(targets.keys())
+    print("Targets", len(keys))
     keys.sort()
     fields = ['target', 'name', 'company', 'support_level', 'notes']
     with file(filename, 'w') as outfile:
@@ -83,6 +83,6 @@ def make_target_csv(targets):
         writer.writeheader()
         for key in keys:
             writer.writerow(targets[key])
-            print targets[key]
+            print(targets[key])
         
     

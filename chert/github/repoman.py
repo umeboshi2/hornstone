@@ -19,7 +19,7 @@ class RepoManager(object):
     def set_repo_path(self, repo_path):
         repo_path = path(repo_path)
         if not repo_path.isdir():
-            raise RuntimeError, "%s doesn't exist." % repo_path
+            raise RuntimeError("%s doesn't exist." % repo_path)
         self.repo_path = repo_path
         
 
@@ -52,7 +52,7 @@ class RepoManager(object):
     def clone_repo(self, dbrepo, reponame=None, size_limit=None):
         if size_limit is not None:
             if dbrepo.size > size_limit:
-                print "%s too big." % dbrepo.full_name, dbrepo.size
+                print("%s too big." % dbrepo.full_name, dbrepo.size)
                 return
         clone_url = dbrepo.pickle.clone_url
         if reponame is None:

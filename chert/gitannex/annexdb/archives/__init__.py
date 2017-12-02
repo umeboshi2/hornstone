@@ -1,5 +1,5 @@
 #
-import entries
-import queries
+from . import entries
+from . import queries
 
-from misc import insert_archive_file
+from .misc import insert_archive_file

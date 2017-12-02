@@ -1,6 +1,6 @@
 import os
-from ConfigParser import ConfigParser
-from StringIO import StringIO
+from configparser import ConfigParser
+from io import StringIO
 
 
 DEFAULT_CONFIG_TEXT = """\
@@ -16,7 +16,7 @@ if not os.path.isfile(default_file):
     dirname = os.path.dirname(default_file)
     if not os.path.isdir(dirname):
         os.makedirs(dirname)
-    print 'Generating default config...'
+    print('Generating default config...')
     config.readfp(StringIO(DEFAULT_CONFIG_TEXT))
     with file(default_file, 'w') as outfile:
         config.write(outfile)

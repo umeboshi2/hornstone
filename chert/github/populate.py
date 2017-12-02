@@ -108,9 +108,9 @@ def add_dbrepo(session, dbrepo, repo_owner=None, verbose=False):
     if owner is None:
         if repo_owner is None:
             msg = "No user in database owning repo %s" % dbrepo.full_name
-            raise NoNamedUserError, msg
+            raise NoNamedUserError(msg)
         if verbose:
-            print "Add new user", repo_owner.login
+            print("Add new user", repo_owner.login)
         dbuser = make_dbuser(repo_owner)
         dbuser = add_dbuser(session, dbuser)
     session.add(dbrepo)
@@ -122,7 +122,7 @@ def _import_repos(session, repolist, verbose=False):
         dbrepo = session.query(GitHubRepo).get(repo.id)
         if dbrepo is None:
             if verbose:
-                print "Add new repo", repo.full_name
+                print("Add new repo", repo.full_name)
             dbrepo = make_dbrepo(repo)
             dbrepo = add_dbrepo(session, dbrepo, repo_owner=repo.owner,
                                 verbose=verbose)
@@ -133,7 +133,7 @@ def import_basic_data(session, ghub, commit=False, verbose=False):
     dbuser = session.query(GitHubUser).get(user_id)
     if dbuser is None:
         if verbose:
-            print "Add main user", user.login
+            print("Add main user", user.login)
         dbuser = make_dbuser(user)
         session.add(dbuser)
     # import main repos
@@ -142,6 +142,6 @@ def import_basic_data(session, ghub, commit=False, verbose=False):
     _import_repos(session, user.get_starred(), verbose=verbose)
     if commit:
         if verbose:
-            print "Committing Data..."
+            print("Committing Data...")
         session.commit()
         

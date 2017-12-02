@@ -1,7 +1,7 @@
 import os, sys
 import hashlib
-import cPickle as Pickle
-from cStringIO import StringIO
+import pickle as Pickle
+from io import StringIO
 import subprocess
 import json
 import socket
@@ -22,7 +22,7 @@ def run_command(cmd):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     if proc.returncode:
         msg = "%s returned %d" % (' '.join(cmd), proc.returncode)
-        raise RuntimeError, msg
+        raise RuntimeError(msg)
     return proc
 
 def get_command_output(cmd):
@@ -43,14 +43,14 @@ def make_default_key(size, checksum, ext):
 def parse_key(keystring):
     method, size, ignore, checksum = keystring.strip().split('-')
     if not size.startswith('s'):
-        raise RuntimeError, "Bad size %s" % size
+        raise RuntimeError("Bad size %s" % size)
     # strip string and create number for size
     size = int(size[1:])
     return dict(method=method, size=size, checksum=checksum)
 
 def getkey(filepath):
     if filepath.startswith('/'):
-        raise RuntimeError, "Need relative path"
+        raise RuntimeError("Need relative path")
     cmd = ['git-annex', 'lookupkey', str(filepath)]
     keystring = get_command_output(cmd).strip()
     return parse_key(keystring)
@@ -59,10 +59,10 @@ def parse_whereis_topline(topline, filepath):
     whereis_cmd_marker = 'whereis'
     origtop = topline
     if not topline.startswith(whereis_cmd_marker):
-        raise RuntimeError, "Bad topline: %s" % topline
+        raise RuntimeError("Bad topline: %s" % topline)
     topline = topline[len(whereis_cmd_marker):].strip()
     if not topline.startswith(filepath):
-        raise RuntimeError, "Bad topline: %s" % topline    
+        raise RuntimeError("Bad topline: %s" % topline)    
     copies = topline[len(filepath):].strip()
     return dict(copies=copies, origtop=origtop, topline=topline)
 
@@ -82,7 +82,7 @@ def make_find_proc(output=None,allrepos=True, inrepos=[]):
         proc._cmd_list = cmd
         return proc
     if len(inrepos):
-        raise RuntimeError, "make --and list of repos for find"
+        raise RuntimeError("make --and list of repos for find")
     return subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
 def make_info_proc(fast=True, output=None):
@@ -97,7 +97,7 @@ def annex_info(fast=True):
         proc.wait()
         return json.load(proc.stdout)
     else:
-        raise RuntimeError, "only --fast currently supported."
+        raise RuntimeError("only --fast currently supported.")
     
 
 
@@ -110,13 +110,13 @@ def parse_whereis_command_output(output, verbose_warning=False):
         except UnicodeDecodeError:
             unicode_decode_error = True
             if verbose_warning:
-                print "Warning converting to unicode:", line.strip()
-            line = unicode(line, errors='replace')
+                print("Warning converting to unicode:", line.strip())
+            line = str(line, errors='replace')
             filedata = json.loads(line.strip())
         filedata['unicode_decode_error'] = unicode_decode_error
         key = filedata['file']
         if key in report_data:
-            raise RuntimeError, "%s already present." % key
+            raise RuntimeError("%s already present." % key)
         report_data[key] = filedata
     return report_data
 
@@ -124,10 +124,10 @@ def make_whereis_data(make_pickle=True):
     main_filename = 'whereis.pickle'
     if os.path.isfile(main_filename):
         return Pickle.load(file(main_filename))
-    print "run command"
+    print("run command")
     cmd = ['git-annex', 'whereis', '--json']
     stdout = subprocess.check_output(cmd)
-    print "run command finished"
+    print("run command finished")
     report_data = parse_whereis_command_output(stdout)
     Pickle.dump(report_data, file(main_filename, 'w'))
     return report_data
@@ -138,17 +138,17 @@ def make_whereis_data(make_pickle=True):
 # filedata is git-annex whereis --json output
 def update_uuids(udata, filedata):
     changed = False
-    original_numkeys = len(udata.keys())
+    original_numkeys = len(list(udata.keys()))
     for item in filedata['whereis']:
         uuid = item['uuid']
         if uuid not in udata:
             description = item['description']
             udata[uuid] = description
-    current_numkeys = len(udata.keys())
+    current_numkeys = len(list(udata.keys()))
     if current_numkeys < original_numkeys:
-        raise RuntimeError, "Bad things happening here"
+        raise RuntimeError("Bad things happening here")
     if current_numkeys != original_numkeys:
-        print "UUID's updated"
+        print("UUID's updated")
         
 
 def parse_json_line(line, convert_to_unicode=False,
@@ -156,13 +156,13 @@ def parse_json_line(line, convert_to_unicode=False,
     unicode_decode_error = False
     try:
         data = json.loads(line.strip())
-    except UnicodeDecodeError, e:
+    except UnicodeDecodeError as e:
         if not convert_to_unicode:
-            raise UnicodeDecodeError, e
+            raise UnicodeDecodeError(e)
         unicode_decode_error = True
         if verbose_warning:
-            print "Warning converting to unicode:", line
-        line = unicode(line, errors='replace')
+            print("Warning converting to unicode:", line)
+        line = str(line, errors='replace')
         data = json.loads(line.strip())
     if convert_to_unicode:
         data['unicode_decode_error'] = unicode_decode_error
@@ -181,7 +181,7 @@ def parse_json_output(lines, counter=None,
     # StopIteration error
     while True:
         try:
-            line = lines.next()
+            line = next(lines)
             if output_to_file:
                 outfile.write(line)
         except StopIteration:
@@ -194,7 +194,7 @@ def parse_json_output(lines, counter=None,
             line,
             convert_to_unicode=convert_to_unicode,
             verbose_warning=verbose_warning)
-        print "DO SOMETHING WITH DATA", data
+        print("DO SOMETHING WITH DATA", data)
 
 
 ######################################
@@ -217,7 +217,7 @@ def gitannex_init(directory, name=None):
     assert_git_directory(directory)
     with WorkingDirectory(directory) as wd:
         if os.path.isdir('.git/annex'):
-            raise AnnexExistsError, "annex already appears initialized"
+            raise AnnexExistsError("annex already appears initialized")
         if name is None:
             name = socket.gethostname()
         cmd = ['git-annex', 'init', name]
@@ -233,7 +233,7 @@ def _encryption(encryption=None):
 def _init_remote(working_directory, name, rtype, **kwargs):
     initcmd = ['git-annex', 'initremote', name, 'type=%s' % rtype]
     enablecmd = ['git-annex', 'enableremote', name]
-    args = ['%s=%s' % (k,v) for k,v in kwargs.items()]
+    args = ['%s=%s' % (k,v) for k,v in list(kwargs.items())]
     initcmd += args
     #print "INITCMD", initcmd
     config_marker = '[remote "%s"]' % name
@@ -241,7 +241,7 @@ def _init_remote(working_directory, name, rtype, **kwargs):
         if config_marker not in file('.git/config').read():
             retcode = subprocess.call(initcmd)
             if retcode:
-                print "INITREMOTE failed, attempt enable"
+                print("INITREMOTE failed, attempt enable")
                 subprocess.call(enablecmd)
                 
 def init_dir_remote(working_directory, name, directory, encryption=None):

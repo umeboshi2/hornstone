@@ -42,7 +42,7 @@ class ImageRepo(object):
         checksum = self.get_checksum_content(content)
         filename = self.filename(checksum, ext)
         if os.path.isfile(filename):
-            raise RuntimeError, "File already exists %s" % checksum
+            raise RuntimeError("File already exists %s" % checksum)
         with file(filename, 'wb') as outfile:
             outfile.write(content)
 

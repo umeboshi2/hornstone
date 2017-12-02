@@ -127,7 +127,7 @@ def get_find_data(session,
         outfile = file(output_filename, 'w')
     while proc.returncode is None:
         try:
-            line = proc.stdout.next()
+            line = next(proc.stdout)
             if output_to_file:
                 outfile.write(line)
         except StopIteration:
@@ -152,7 +152,7 @@ def make_whereis_output():
     outfile = file(filename, 'w')
     while proc.returncode is None:
         try:
-            line = proc.stdout.next()
+            line = next(proc.stdout)
             outfile.write(line)
         except StopIteration:
             outfile.close()
@@ -164,12 +164,12 @@ def parse_whereis_line(session, line, repoids, convert_to_unicode=True,
                        verbose_warning=True):
     try:
         data = json.loads(line.strip())
-    except UnicodeDecodeError, e:
+    except UnicodeDecodeError as e:
         if not convert_to_unicode:
-            raise UnicodeDecodeError, e
+            raise UnicodeDecodeError(e)
         if verbose_warning:
-            print "Warning converting to unicode", line.strip()
-        line = unicode(line, errors='replace')
+            print("Warning converting to unicode", line.strip())
+        line = str(line, errors='replace')
         data = json.loads(line.strip())
     f = session.query(AnnexFile).filter_by(name=data['file']).one()
     for wdata in data['whereis']:
@@ -186,7 +186,7 @@ def parse_whereis_cmd(session, repoids, convert_to_unicode=True,
     count = 0
     while proc.returncode is None:
         try:
-            line = proc.stdout.next()
+            line = next(proc.stdout)
         except StopIteration:
             break
         parse_whereis_line(session, line, repoids,
@@ -194,10 +194,10 @@ def parse_whereis_cmd(session, repoids, convert_to_unicode=True,
                            verbose_warning=verbose_warning)
         count += 1
         if not count % 5000:
-            print "committing at count %d" % count
+            print("committing at count %d" % count)
             session.commit()
     if proc.returncode:
-        raise RuntimeError, "command returned %d" % proc.returncode
+        raise RuntimeError("command returned %d" % proc.returncode)
     session.commit()
     
 
@@ -207,7 +207,7 @@ def initialize_annex_keys(session, find_output_filename):
     with file(filename) as infile:
         while True:
             try:
-                line = infile.next()
+                line = next(infile)
             except StopIteration:
                 break
             data = gitannex.parse_json_line(
@@ -219,10 +219,10 @@ def initialize_annex_keys(session, find_output_filename):
         dbk = AnnexKey()
         dbk.name = k
         session.add(dbk)
-    print "added %d keys" % len(keys)
-    print datetime.now()
+    print("added %d keys" % len(keys))
+    print(datetime.now())
     session.commit()
-    print "successful commit", datetime.now()
+    print("successful commit", datetime.now())
 
 
 
@@ -233,14 +233,14 @@ def _add_annexfile_attributes_common(dbobj, data):
                 'unicode_decode_error']:
         setattr(dbobj, att, data[att])
         if data['mtime'] != 'unknown':
-            raise RuntimeError, "Parse time?"
+            raise RuntimeError("Parse time?")
         
 def _add_annexfile_attributes(keylookup, dbobj, data):
     key = data['key']
     try:
         dbobj.key_id = keylookup[key]
     except KeyError:
-        raise KeyError, "Unknown key %s" % data
+        raise KeyError("Unknown key %s" % data)
     _add_annexfile_attributes_common(dbobj, data)
 
         
@@ -262,7 +262,7 @@ def add_files(session, keylookup, find_output_filename):
         current = datetime.now()
         while True:
             try:
-                line = infile.next()
+                line = next(infile)
                 count += 1
             except StopIteration:
                 break
@@ -274,14 +274,14 @@ def add_files(session, keylookup, find_output_filename):
             add_file_to_database(session, keylookup, data)
             if not count % 5000:
                 commit = True
-                print "Committing %d files" % count
+                print("Committing %d files" % count)
                 now = datetime.now()
-                print "Diff", now - current
+                print("Diff", now - current)
                 current = now
                 session.commit()
-        print "%d files added." % count
+        print("%d files added." % count)
         session.commit()
-        print datetime.now()
+        print(datetime.now())
 
         
 def add_new_file_to_database(session, filedata,
@@ -308,34 +308,34 @@ def add_new_files(session, keylookup, newfiles):
         add_new_file_to_database(session, data)
         if not count % 5000:
             commit = True
-            print "Committing %d files" % count
+            print("Committing %d files" % count)
             now = datetime.now()
-            print "Diff", now - current
+            print("Diff", now - current)
             current = now
             session.commit()
-    print "%d files added." % count
+    print("%d files added." % count)
     session.commit()
-    print datetime.now()
+    print(datetime.now())
 
 def populate_whereis(session, repoids):
-    print "populating whereis info"
+    print("populating whereis info")
     parse_whereis_cmd(session, repoids, convert_to_unicode=True,
                       verbose_warning=True)
-    print "whereis info populated"
+    print("whereis info populated")
     
     
 def populate_database(session):
     now = datetime.now()
-    print "Creating git-annex find output"
+    print("Creating git-annex find output")
     find_output_filename = make_find_output()
-    print "Finished creating git-annex find output"
-    print "Time taken for git-annex find: %s" % (datetime.now() - now)
+    print("Finished creating git-annex find output")
+    print("Time taken for git-annex find: %s" % (datetime.now() - now))
     kl = make_keyid_lookup_dict(session)
     if not len(kl):
         initialize_annex_keys(session, find_output_filename)
         kl = make_keyid_lookup_dict(session)
     if not len(kl):
-        raise RuntimeError, "No key database"
+        raise RuntimeError("No key database")
     add_files(session, kl, find_output_filename)
     session.commit()
     os.remove(find_output_filename)
