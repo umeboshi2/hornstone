@@ -16,6 +16,7 @@ requires = [
     'unipath',
     'PyGithub',
     'gitpython',
+    'passlib',
 ]
 
 setup(name='chert',
