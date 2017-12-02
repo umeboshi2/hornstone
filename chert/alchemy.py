@@ -1,6 +1,7 @@
 import warnings
 from datetime import datetime, date
 
+import sqlalchemy as sa
 from sqlalchemy import Column, DateTime, PickleType, func
 
 from sqlalchemy import engine_from_config
@@ -44,7 +45,27 @@ def compile_query(query):
     return (comp.string.encode(enc) % params).decode(enc)
 
 
-class SerialBase(object):
+
+# inspired by ziggurat_foundations
+class BaseModel(object):
+    @classmethod
+    def _get_keys(cls):
+        'returns column names for this model'
+        return sa.orm.class_mapper(cls).c.keys()
+
+    @classmethod
+    def get_primary_key(cls):
+        'returns primary key'
+        return sa.orm.class_mapper(cls).primary_key
+
+
+    def to_dict(self):
+        data = {}
+        for key in self._get_keys():
+            data[key] = getattr(self, key)
+        return data
+    
+class SerialBase(BaseModel):
     def serialize(self):
         data = dict()
         table = self.__table__
