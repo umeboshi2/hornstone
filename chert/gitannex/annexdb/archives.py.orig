@@ -200,7 +200,7 @@ def export_archive_to_file(session, annexed_file, directory):
     data = export_annexed_archive_data(session, annexed_file)
     name = '%s.json' % data['key']
     filename = os.path.join(directory, name)
-    with file(filename, 'w') as outfile:
+    with open(filename, 'w') as outfile:
         json.dump(data, outfile)
         
 
@@ -329,7 +329,7 @@ def make_archive_entry_zipfile(session, entry):
         info = zfile.getinfo(entry.filename)
         prefix = 'gitannex-archive-entry-archive-'
         ignore, tzfilename = tempfile.mkstemp(prefix=prefix, suffix='.zip')
-        with file(tzfilename, 'w') as outfile, zfile.open(info) as infile:
+        with open(tzfilename, 'w') as outfile, zfile.open(info) as infile:
             while True:
                 block = infile.read(4096)
                 if not block:

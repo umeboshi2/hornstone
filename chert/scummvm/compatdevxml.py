@@ -19,7 +19,7 @@ def get_scummvm_compat_xml(url):
     filename = 'compat-DEV.xml'
     if not os.path.isfile(filename):
         content = get_scummvm_compat_xml_remote(url)
-        with file(filename, 'w') as outfile:
+        with open(filename, 'w') as outfile:
             outfile.write(content)
     else:
         print("%s exists." % filename)
@@ -77,7 +77,7 @@ def make_target_csv(targets):
     print("Targets", len(keys))
     keys.sort()
     fields = ['target', 'name', 'company', 'support_level', 'notes']
-    with file(filename, 'w') as outfile:
+    with open(filename, 'w') as outfile:
         writer = csv.DictWriter(outfile,
                                 fieldnames=fields, quoting=csv.QUOTE_ALL)
         writer.writeheader()

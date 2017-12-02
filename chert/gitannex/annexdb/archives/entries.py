@@ -56,7 +56,7 @@ def make_archive_entry_zipfile(session, entry, annexpath=None):
         info = zfile.getinfo(entry.filename)
         prefix = 'gitannex-archive-entry-archive-'
         ignore, tzfilename = tempfile.mkstemp(prefix=prefix, suffix='.zip')
-        with file(tzfilename, 'w') as outfile, zfile.open(info) as infile:
+        with open(tzfilename, 'w') as outfile, zfile.open(info) as infile:
             while True:
                 block = infile.read(4096)
                 if not block:

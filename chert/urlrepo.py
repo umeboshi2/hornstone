@@ -43,12 +43,12 @@ class ImageRepo(object):
         filename = self.filename(checksum, ext)
         if os.path.isfile(filename):
             raise RuntimeError("File already exists %s" % checksum)
-        with file(filename, 'wb') as outfile:
+        with open(filename, 'wb') as outfile:
             outfile.write(content)
 
     def open(self, checksum, ext, mode='rb'):
         filename = self.filename(checksum, ext)
-        return file(filename, mode)
+        return open(filename, mode)
     
     def delete(self, checksum, ext):
         if self.file_exists(checksum, ext):
@@ -108,6 +108,6 @@ class UrlRepo(object):
         dirname = os.path.dirname(filename)
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
-        return file(filename, mode)
+        return open(filename, mode)
         
         

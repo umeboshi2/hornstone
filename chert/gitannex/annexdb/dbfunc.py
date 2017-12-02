@@ -124,7 +124,7 @@ def get_find_data(session,
     #import pdb ; pdb.set_trace()
     count = 0
     if output_to_file:
-        outfile = file(output_filename, 'w')
+        outfile = open(output_filename, 'w')
     while proc.returncode is None:
         try:
             line = next(proc.stdout)
@@ -149,7 +149,7 @@ def make_whereis_output():
     ignore, filename = tempfile.mkstemp(prefix='gitannex-whereis-output-')
     proc = gitannex.make_whereis_proc()
     count = 0
-    outfile = file(filename, 'w')
+    outfile = open(filename, 'w')
     while proc.returncode is None:
         try:
             line = next(proc.stdout)
@@ -204,7 +204,7 @@ def parse_whereis_cmd(session, repoids, convert_to_unicode=True,
 def initialize_annex_keys(session, find_output_filename):
     filename = find_output_filename
     keys = set()
-    with file(filename) as infile:
+    with open(filename) as infile:
         while True:
             try:
                 line = next(infile)
@@ -257,7 +257,7 @@ def add_file_to_database(session, keylookup, filedata,
 
 
 def add_files(session, keylookup, find_output_filename):
-    with file(find_output_filename) as infile:
+    with open(find_output_filename) as infile:
         count = 0
         current = datetime.now()
         while True:

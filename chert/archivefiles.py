@@ -75,7 +75,7 @@ def get_extracted_info(parent_dir, fileinfo, sha256sum=False):
         # make sure extracted_name exists
         if not extracted_name.isfile():
             raise RuntimeError("%s is not a file" % extracted_name)
-    ifile = file(extracted_name)
+    ifile = open(extracted_name)
     ifile.seek(0, 2)
     file_size = ifile.tell()
     ifile.seek(0)

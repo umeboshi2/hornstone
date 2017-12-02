@@ -76,6 +76,6 @@ def remove_trailing_slash(pathname):
     
 
 def parse_config_lines(filename):
-    return [line.strip() for line in file(filename)
+    return [line.strip() for line in open(filename)
             if line.strip() and not line.strip().startswith('#')]
 

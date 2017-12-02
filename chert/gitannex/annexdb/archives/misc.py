@@ -200,7 +200,7 @@ def export_archive_to_file(session, annexed_file, directory):
     data = export_annexed_archive_data(session, annexed_file)
     name = '%s.json' % data['key']
     filename = os.path.join(directory, name)
-    with file(filename, 'w') as outfile:
+    with open(filename, 'w') as outfile:
         json.dump(data, outfile)
         
 

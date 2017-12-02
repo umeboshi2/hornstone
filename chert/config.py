@@ -18,7 +18,7 @@ if not os.path.isfile(default_file):
         os.makedirs(dirname)
     print('Generating default config...')
     config.readfp(StringIO(DEFAULT_CONFIG_TEXT))
-    with file(default_file, 'w') as outfile:
+    with open(default_file, 'w') as outfile:
         config.write(outfile)
 
 config.read([default_file])

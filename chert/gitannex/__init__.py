@@ -123,13 +123,13 @@ def parse_whereis_command_output(output, verbose_warning=False):
 def make_whereis_data(make_pickle=True):
     main_filename = 'whereis.pickle'
     if os.path.isfile(main_filename):
-        return Pickle.load(file(main_filename))
+        return Pickle.load(open(main_filename))
     print("run command")
     cmd = ['git-annex', 'whereis', '--json']
     stdout = subprocess.check_output(cmd)
     print("run command finished")
     report_data = parse_whereis_command_output(stdout)
-    Pickle.dump(report_data, file(main_filename, 'w'))
+    Pickle.dump(report_data, open(main_filename, 'w'))
     return report_data
 
 
@@ -176,7 +176,7 @@ def parse_json_output(lines, counter=None,
                       output_to_file=False,
                       output_filename='___INEEDANAME___.output'):
     if output_to_file:
-        outfile = file(output_filename, 'w')
+        outfile = open(output_filename, 'w')
     # the while loop will be broken with
     # StopIteration error
     while True:
@@ -238,7 +238,7 @@ def _init_remote(working_directory, name, rtype, **kwargs):
     #print "INITCMD", initcmd
     config_marker = '[remote "%s"]' % name
     with WorkingDirectory(working_directory) as wd:
-        if config_marker not in file('.git/config').read():
+        if config_marker not in open('.git/config').read():
             retcode = subprocess.call(initcmd)
             if retcode:
                 print("INITREMOTE failed, attempt enable")
