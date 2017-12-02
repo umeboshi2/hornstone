@@ -6,11 +6,12 @@ version = '0.0'
 requires = [
     'SQLAlchemy',
     'psycopg2',        # dbapi for postgresql
+    'transaction',
+    'sqlalchemy-utils',
     'robobrowser',
     'requests',
     'beautifulsoup4',
     'lxml',
-    'transaction',     # I am not sure if I should use this or not
     'rarfile',
     'unipath',
     'PyGithub',
@@ -27,7 +28,7 @@ A bunch of rocks""",
       author='Joseph Rawson',
       author_email='joseph.rawson.works@gmail.com',
       url='https://github.com/umeboshi2/chert',
-      license='',
+      license='Public Domain',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=True,

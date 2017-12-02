@@ -1,29 +1,34 @@
+import warnings
 from datetime import datetime, date
 
-
-from sqlalchemy import Column
-# column types
-#from sqlalchemy import Integer, String, Unicode
-#from sqlalchemy import UnicodeText
-#from sqlalchemy import Boolean, Date, LargeBinary
-#from sqlalchemy import PickleType
-#from sqlalchemy import Enum
-from sqlalchemy import DateTime
-#from sqlalchemy import BigInteger
-
-from sqlalchemy import func
+from sqlalchemy import Column, DateTime, PickleType, func
 
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
 
-# here is the common base
+# here is the common base from pyramid alchemy template
 from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from sqlalchemy.schema import MetaData
+from sqlalchemy_utils import Timestamp
 
+# Recommended naming convention used by Alembic, as various different database
+# providers will autogenerate vastly different names making migrations more
+# difficult. See: http://alembic.zzzcomputing.com/en/latest/naming.html
+NAMING_CONVENTION = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
+metadata = MetaData(naming_convention=NAMING_CONVENTION)
+Base = declarative_base(metadata=metadata)
 
 # http://stackoverflow.com/questions/4617291/how-do-i-get-a-raw-compiled-sql-query-from-a-sqlalchemy-expression
 from sqlalchemy.sql import compiler
 from psycopg2.extensions import adapt as sqlescape
+
 
 def compile_query(query):
     dialect = query.session.bind.dialect
@@ -47,9 +52,16 @@ class SerialBase(object):
             name = column.name
             try:
                 pytype = column.type.python_type
-            except NotImplementedError:
-                #print "NOTIMPLEMENTEDERROR", column.type
-                continue
+            except NotImplementedError as error:
+                if type(column.type) is PickleType:
+                    value = getattr(self, name)
+                    if type(value) not in [dict, list]:
+                        # ignore column
+                        continue
+                else:
+                    msg = "{}({}) Not Implemented.".format(column, column.type)
+                    warnings.warn(msg)
+                    continue
             value = getattr(self, name)
             if pytype is datetime or pytype is date:
                 if value is not None:
@@ -59,9 +71,16 @@ class SerialBase(object):
 
 
 
-class TimeStampMixin(SerialBase):
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now())
+class TimeStampMixin(SerialBase, Timestamp):
+    @property
+    def created_at(self):
+        warnings.warn("created_at no longer needed")
+        return super(Timestamp, self).created
+
+    @property
+    def updated_at(self):
+        warnings.warn("updated_at no longer needed")
+        return super(Timestamp, self).updated
     
     
 def _make_db_session(dburl, create_all=False, baseclass=None):
