@@ -11,115 +11,31 @@ from sqlalchemy.orm import relationship
 
 from chert.alchemy import TimeStampMixin
 
-class UserMixin(TimeStampMixin):
+class CeleryTaskMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
         return 'users'
 
     @declared_attr
     def id(self):
-        return Column(Integer, primary_key=True, autoincrement=True)
+        return Column(Integer, primary_key=True, nullable=False)
 
     @declared_attr
-    def username(self):
-        return Column(Unicode(50), unique=True)
+    def task_id(self):
+        return Column(Unicode(255))
+    
+    @declared_attr
+    def status(self):
+        return Column(Unicode(50))
 
     @declared_attr
-    def fullname(self):
-        return Column(Unicode(150), unique=True)
-
-    @declared_attr
-    def email(self):
-        return Column(Unicode(150), unique=True)
-
-    @declared_attr
-    def active(self):
-        return Column(Boolean(name='user_active'), default=True)
-
-    @declared_attr
-    def password(self):
-        return Column(Unicode(150))
-
-    @declared_attr
-    def settings(self):
+    def result(self):
         return Column(PickleType)
+
+    @declared_attr
+    def date_done(self):
+        return Column(DateTime)
     
-    @property
-    def user_name(self):
-        return super(TimeStampMixin, self).username
-
-    def get_groups(self):
-        return [g.name for g in self.groups]
-
-    
-class UserConfigMixin(TimeStampMixin):
     @declared_attr
-    def __tablename__(self):
-        return 'user_config'
-
-    @declared_attr
-    def id(self):
-        return Column(Integer, ForeignKey('users.id'), primary_key=True)
-
-    @declared_attr
-    def text(self):
+    def traceback(self):
         return Column(UnicodeText)
-
-    def get_config(self):
-        c = ConfigParser()
-        c.readfp(StringIO(self.text))
-        return c
-
-    def set_config(self, config):
-        cfile = StringIO()
-        config.write(cfile)
-        cfile.seek(0)
-        text = cfile.read()
-        self.text = text
-    
-class GroupMixin(TimeStampMixin):
-    @declared_attr
-    def __tablename__(self):
-        return 'groups'
-
-    @declared_attr
-    def id(self):
-        return Column(Integer, primary_key=True, autoincrement=True)
-
-    @declared_attr
-    def name(self):
-        return Column(Unicode(50), unique=True)
-
-    @declared_attr
-    def description(self):
-        return Column(UnicodeText)
-
-    @declared_attr
-    def users(self):
-        return relationship('User', secondary='group_user',
-                            backref='groups')
-    
-    
-class UserGroupMixin(TimeStampMixin):
-    @declared_attr
-    def __tablename__(self):
-        return 'group_user'
-
-    @declared_attr
-    def group_id(self):
-        return Column(Integer,
-                      ForeignKey('groups.id',
-                                 onupdate='CASCADE',
-                                 ondelete='CASCADE'),
-                      primary_key=True)
-    
-    @declared_attr
-    def user_id(self):
-        return Column(Integer,
-                      ForeignKey('users.id',
-                                 onupdate='CASCADE',
-                                 ondelete='CASCADE'),
-                      primary_key=True)
-
-
-#User.config = relationship(UserConfig, uselist=False, lazy='subquery')
