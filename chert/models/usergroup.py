@@ -11,12 +11,6 @@ from sqlalchemy.orm import relationship
 
 from chert.alchemy import TimeStampMixin
 
-from .meta import Base
-
-# imports for populate()
-import transaction
-from sqlalchemy.exc import IntegrityError
-
 class UserMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -52,7 +46,7 @@ class UserMixin(TimeStampMixin):
     
     @property
     def user_name(self):
-        return super(Base, self).username
+        return super(TimeStampMixin, self).username
 
     def get_groups(self):
         return [g.name for g in self.groups]
@@ -100,6 +94,11 @@ class GroupMixin(TimeStampMixin):
     def description(self):
         return Column(UnicodeText)
 
+    @declared_attr
+    def users(self):
+        return relationship('User', secondary='group_user',
+                            backref='groups')
+    
     
 class UserGroupMixin(TimeStampMixin):
     @declared_attr
@@ -122,11 +121,5 @@ class UserGroupMixin(TimeStampMixin):
                                  ondelete='CASCADE'),
                       primary_key=True)
 
-    @declared_attr
-    def users(self):
-        return relationship('User', secondary='group_user',
-                            backref='groups')
-    
-    
 
 #User.config = relationship(UserConfig, uselist=False, lazy='subquery')
