@@ -5,7 +5,6 @@ import json
 
 from unipath.path import Path as path
 from unipath import FILES, DIRS, LINKS
-from git import Repo
 
 
 #http://code.activestate.com/recipes/576620-changedirectory-context-manager/
