@@ -40,7 +40,7 @@ Base = declarative_base()
 
 vccol = Unicode(200)
 
-class GitHubUser(TimeStampMixin, Base):
+class GitHubUser(TimeStampMixin):
     __tablename__ = 'ghub_users'
     id = Column(BigInteger, primary_key=True)
     login = Column(vccol, unique=True)
@@ -74,7 +74,7 @@ class GitHubUser(TimeStampMixin, Base):
     pickle = Column(PickleType)
 
     
-class GitHubRepo(TimeStampMixin, Base):
+class GitHubRepo(TimeStampMixin):
     __tablename__ = 'ghub_repos'
     id = Column(BigInteger, primary_key=True)
     owner_id = Column(BigInteger, ForeignKey('ghub_users.id'))

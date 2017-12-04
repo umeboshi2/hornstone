@@ -37,19 +37,19 @@ AnnexRepositoryTrustType = Enum('trusted', 'semitrusted', 'untrusted', 'dead',
 ## Tables                         ##
 ####################################
 #
-class AnnexRepository(Base,SerialBase):
+class AnnexRepository(SerialBase):
     __tablename__ = 'ga_annex_repositories'
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200))
     uuid = Column(Unicode(40), unique=True)
     trust = Column(AnnexRepositoryTrustType, default='semitrusted')
     
-class AnnexKey(SerialBase, Base):
+class AnnexKey(SerialBase):
     __tablename__ = "ga_annex_keys"
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
 
-class AnnexFile(SerialBase, Base):
+class AnnexFile(SerialBase):
     __tablename__ = "ga_annex_files"
     id = Column(Integer, primary_key=True)
     name = Column(UnicodeText, unique=True)
@@ -65,25 +65,25 @@ class AnnexFile(SerialBase, Base):
     unicode_decode_error = Column(Boolean)
     
 
-class RepoFile(SerialBase, Base):
+class RepoFile(SerialBase):
     __tablename__ = "ga_annex_repo_files"
     file_id = Column(Integer, ForeignKey('ga_annex_files.id'),
                      primary_key=True)
     repo_id = Column(Integer, ForeignKey('ga_annex_repositories.id'),
                      primary_key=True)
     
-class ArchiveFile(SerialBase, Base):
+class ArchiveFile(SerialBase):
     __tablename__ = "ga_archive_files"
     id = Column(Integer, ForeignKey('ga_annex_files.id'), primary_key=True)
     archive_type = Column(ArchiveType)
 
-class ArchiveEntryKey(SerialBase, Base):
+class ArchiveEntryKey(SerialBase):
     __tablename__ = "ga_archive_entry_keys"
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
     
 
-class ArchiveEntry(SerialBase, Base):
+class ArchiveEntry(SerialBase):
     __tablename__ = "ga_archive_entries"
     id = Column(Integer, primary_key=True)
     archive_id = Column(Integer, ForeignKey('ga_archive_files.id'))
