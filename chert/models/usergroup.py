@@ -9,7 +9,7 @@ from sqlalchemy import ForeignKey, PickleType
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
-from chert.alchemy import TimeStampMixin
+from ..alchemy import TimeStampMixin
 
 class UserMixin(TimeStampMixin):
     @declared_attr
