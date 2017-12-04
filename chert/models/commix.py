@@ -7,8 +7,7 @@ from sqlalchemy import ForeignKey, Boolean
 from sqlalchemy import Date, Time, DateTime
 from sqlalchemy import Enum
 from sqlalchemy import PickleType
-
-
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship, backref
 
 from ..alchemy import TimeStampMixin
