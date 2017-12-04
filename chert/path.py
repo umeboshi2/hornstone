@@ -58,7 +58,7 @@ _textmode = 'U'
 class TreeWalkWarning(Warning):
     pass
 
-class path(_base):
+class path(str):
     """ Represents a filesystem path.
 
     For documentation on individual methods, consult their
