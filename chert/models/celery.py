@@ -14,7 +14,7 @@ from chert.alchemy import TimeStampMixin
 class CeleryTaskMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
-        return 'users'
+        return 'celery_taskmeta'
 
     @declared_attr
     def id(self):
