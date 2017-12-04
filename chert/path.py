@@ -51,28 +51,6 @@ else:
     except ImportError:
         pwd = None
 
-# Pre-2.3 support.  Are unicode filenames supported?
-_base = str
-_getcwd = os.getcwd
-try:
-    if os.path.supports_unicode_filenames:
-        _base = str
-        _getcwd = os.getcwd
-except AttributeError:
-    pass
-
-# Pre-2.3 workaround for booleans
-try:
-    True, False
-except NameError:
-    True, False = 1, 0
-
-# Pre-2.3 workaround for basestring.
-try:
-    str
-except NameError:
-    str = (str, str)
-
 # Universal newline support
 _textmode = 'r'
 if hasattr(file, 'newlines'):
