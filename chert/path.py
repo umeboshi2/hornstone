@@ -52,9 +52,7 @@ else:
         pwd = None
 
 # Universal newline support
-_textmode = 'r'
-if hasattr(file, 'newlines'):
-    _textmode = 'U'
+_textmode = 'U'
 
 
 class TreeWalkWarning(Warning):
