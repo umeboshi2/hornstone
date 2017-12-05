@@ -10,15 +10,12 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
 from ..alchemy import TimeStampMixin
+from .base import BaseIdMixin, BaseShortNameIdMixin
 
-class UserMixin(TimeStampMixin):
+class UserMixin(BaseIdMixin):
     @declared_attr
     def __tablename__(self):
         return 'users'
-
-    @declared_attr
-    def id(self):
-        return Column(Integer, primary_key=True, autoincrement=True)
 
     @declared_attr
     def username(self):
@@ -77,18 +74,10 @@ class UserConfigMixin(TimeStampMixin):
         text = cfile.read()
         self.text = text
     
-class GroupMixin(TimeStampMixin):
+class GroupMixin(BaseShortNameIdMixin):
     @declared_attr
     def __tablename__(self):
         return 'groups'
-
-    @declared_attr
-    def id(self):
-        return Column(Integer, primary_key=True, autoincrement=True)
-
-    @declared_attr
-    def name(self):
-        return Column(Unicode(50), unique=True)
 
     @declared_attr
     def description(self):
