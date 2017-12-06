@@ -1,9 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""The setup script."""
+
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.0'
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
 
-requires = [
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
+
+requirements = [
     'SQLAlchemy',
     'psycopg2',        # dbapi for postgresql
     'transaction',
@@ -19,23 +28,40 @@ requires = [
     'passlib',
 ]
 
-setup(name='chert',
-      version=version,
-      description="A bunch of rocks",
-      long_description="""\
-A bunch of rocks""",
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='',
-      author='Joseph Rawson',
-      author_email='joseph.rawson.works@gmail.com',
-      url='https://github.com/umeboshi2/chert',
-      license='Public Domain',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-      include_package_data=True,
-      zip_safe=True,
-      install_requires=requires,
-      entry_points="""
-      # -*- Entry points: -*-
-      [console_scripts]
-      """,
-      )
+setup_requirements = [
+    'pytest-runner',
+    # TODO(umeboshi2): put setup requirements (distutils extensions, etc.) here
+]
+
+test_requirements = [
+    'pytest',
+    # TODO: put package test requirements here
+]
+
+setup(
+    name='chert',
+    version='0.1.0',
+    description="A bunch of rocks",
+    long_description=readme + '\n\n' + history,
+    author="Joseph Rawson",
+    author_email='joseph.rawson.works@gmail.com',
+    url='https://github.com/umeboshi2/chert',
+    license='Public Domain',
+    packages=find_packages(include=['chert']),
+    include_package_data=True,
+    install_requires=requirements,
+    zip_safe=False,
+    keywords='chert',
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+    ],
+    test_suite='tests',
+    tests_require=test_requirements,
+    setup_requires=setup_requirements,
+)
