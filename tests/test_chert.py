@@ -6,7 +6,7 @@
 import pytest
 
 
-from chert import chert
+import chert
 
 
 @pytest.fixture
