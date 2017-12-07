@@ -40,7 +40,7 @@ test_requirements = [
 
 setup(
     name='chert',
-    version='0.1.0',
+    version='0.1.1',
     description="A bunch of rocks",
     long_description=readme + '\n\n' + history,
     author="Joseph Rawson",
