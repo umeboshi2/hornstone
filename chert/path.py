@@ -1,3 +1,4 @@
+# flake8: noqa
 """ path.py - An object representing a path to a file or directory.
 
 Example:

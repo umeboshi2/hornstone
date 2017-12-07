@@ -1,6 +1,4 @@
 import os
-import sys
-import hashlib
 import pickle as Pickle
 from io import StringIO
 import subprocess
@@ -8,16 +6,12 @@ import json
 import socket
 
 
-#from useless.base.path import path
-from unipath.path import Path as path
-from unipath import FILES, DIRS, LINKS
-
 from chert.base import WorkingDirectory
 from chert.gitfunc import assert_git_directory
 
-zero_key_old = 'SHA256-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+zero_key_old = 'SHA256-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'  # noqa
 
-zero_key_prefix = 'SHA256E-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+zero_key_prefix = 'SHA256E-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'  # noqa
 
 
 def run_command(cmd):
@@ -148,7 +142,6 @@ def make_whereis_data(make_pickle=True):
 # udata is global uuid repo dictionary
 # filedata is git-annex whereis --json output
 def update_uuids(udata, filedata):
-    changed = False
     original_numkeys = len(list(udata.keys()))
     for item in filedata['whereis']:
         uuid = item['uuid']
@@ -218,7 +211,7 @@ class AnnexExistsError(Exception):
 
 
 def sync_annex(directory, hosts=None):
-    with WorkingDirectory(directory) as wd:
+    with WorkingDirectory(directory):
         cmd = ['git-annex', 'sync']
         if hosts is not None:
             cmd += hosts
@@ -228,7 +221,7 @@ def sync_annex(directory, hosts=None):
 
 def gitannex_init(directory, name=None):
     assert_git_directory(directory)
-    with WorkingDirectory(directory) as wd:
+    with WorkingDirectory(directory):
         if os.path.isdir('.git/annex'):
             raise AnnexExistsError("annex already appears initialized")
         if name is None:
@@ -251,7 +244,7 @@ def _init_remote(working_directory, name, rtype, **kwargs):
     initcmd += args
     # print "INITCMD", initcmd
     config_marker = '[remote "%s"]' % name
-    with WorkingDirectory(working_directory) as wd:
+    with WorkingDirectory(working_directory):
         if config_marker not in open('.git/config').read():
             retcode = subprocess.call(initcmd)
             if retcode:

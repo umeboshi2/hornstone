@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-import os
-import sys
-from configparser import ConfigParser
-import pickle as Pickle
-
 from github import Github
 
 

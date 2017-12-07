@@ -1,35 +1,25 @@
-from datetime import datetime, date
-import time
-
-from sqlalchemy import Sequence, Column, ForeignKey
+from sqlalchemy import Column, ForeignKey
 
 # column types
-from sqlalchemy import Integer, String, Unicode
-from sqlalchemy import UnicodeText
-from sqlalchemy import Boolean, Date, LargeBinary
-from sqlalchemy import PickleType
-from sqlalchemy import Enum
-from sqlalchemy import DateTime
+from sqlalchemy import (
+    Integer,
+    Unicode,
+    UnicodeText,
+    Enum,
+    )
+from sqlalchemy.orm import relationship
 
-from sqlalchemy.orm import relationship, backref
-
-from sqlalchemy.ext.declarative import declarative_base
-
-from chert.alchemy import SerialBase
-
-
-Base = declarative_base()
-
+from chert.alchemy import Base, SerialBase
 
 ####################################
-## Data Types                     ##
+# Data Types                     ###
 ####################################
 
 HubbyFileType = Enum('agenda', 'minutes', 'attachment',
                      name='hubbyfile_type_enum')
 
 ####################################
-## Tables                         ##
+# Tables                         ###
 ####################################
 
 
@@ -49,7 +39,7 @@ class ScummVMGame(Base, SerialBase):
 
 
 ####################################
-## Relationships                  ##
+# Relationships                  ###
 ####################################
 
 ScummVMGame.company = relationship(ScummVMCompany)

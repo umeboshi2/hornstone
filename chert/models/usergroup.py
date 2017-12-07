@@ -1,7 +1,6 @@
 from configparser import ConfigParser
 from io import StringIO
 
-import sqlalchemy as sa
 from sqlalchemy import Column
 from sqlalchemy import Integer, Boolean
 from sqlalchemy import Unicode, UnicodeText
@@ -113,4 +112,4 @@ class UserGroupMixin(TimeStampMixin):
                       primary_key=True)
 
 
-#User.config = relationship(UserConfig, uselist=False, lazy='subquery')
+# User.config = relationship(UserConfig, uselist=False, lazy='subquery')

@@ -1,15 +1,6 @@
 import os
-import sys
-import hashlib
-import pickle as Pickle
-from io import StringIO
 import subprocess
 import json
-
-
-#from useless.base.path import path
-from unipath.path import Path as path
-from unipath import FILES, DIRS, LINKS
 
 
 class GitAnnexProcManager(object):

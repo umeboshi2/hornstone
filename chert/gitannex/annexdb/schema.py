@@ -1,27 +1,20 @@
-from datetime import datetime, date
-import time
-
-from sqlalchemy import Sequence, Column, ForeignKey
+from sqlalchemy import Column, ForeignKey
 
 # column types
-from sqlalchemy import Integer, String, Unicode
+from sqlalchemy import Integer, Unicode
 from sqlalchemy import UnicodeText
-from sqlalchemy import Boolean, Date, LargeBinary
-from sqlalchemy import PickleType
+from sqlalchemy import Boolean
 from sqlalchemy import Enum
 from sqlalchemy import DateTime
 from sqlalchemy import BigInteger
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
-from sqlalchemy.ext.declarative import declarative_base
-
-
-from chert.alchemy import SerialBase, Base
+from chert.alchemy import SerialBase
 
 
 ####################################
-## Data Types                     ##
+#  Data Types                     ##
 ####################################
 
 GitAnnexBackendType = Enum('SHA256', 'SHA256E',
@@ -34,7 +27,7 @@ AnnexRepositoryTrustType = Enum('trusted', 'semitrusted', 'untrusted', 'dead',
                                 name='gitannex_repository_trust_type')
 
 ####################################
-## Tables                         ##
+#  Tables                         ##
 ####################################
 #
 
@@ -145,7 +138,7 @@ class ArchiveEntry(SerialBase):
 
 
 ####################################
-## Relationships                  ##
+#  Relationships                  ##
 ####################################
 
 AnnexFile.key = relationship(AnnexKey, backref='files')

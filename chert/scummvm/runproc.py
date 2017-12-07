@@ -1,5 +1,4 @@
 import os
-import subprocess
 from configparser import ConfigParser, NoSectionError
 
 main_config = ConfigParser()

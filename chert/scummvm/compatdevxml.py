@@ -1,12 +1,10 @@
 import os
-import sys
-import pickle as Pickle
 import xml.etree.ElementTree as ET
 import csv
 
 import requests
 
-scummvm_compat_xml_url = 'https://github.com/scummvm/scummvm-web/raw/master/data/compatibility/compat-DEV.xml'
+scummvm_compat_xml_url = 'https://github.com/scummvm/scummvm-web/raw/master/data/compatibility/compat-DEV.xml'  # noqa
 
 
 def get_scummvm_compat_xml_remote(url):

@@ -3,7 +3,6 @@ import json
 import subprocess
 
 from unipath.path import Path as path
-from unipath import FILES, DIRS, LINKS
 
 
 def assert_git_directory(directory):

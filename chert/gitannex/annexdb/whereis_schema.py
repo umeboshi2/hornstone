@@ -1,16 +1,14 @@
 from datetime import datetime, date
-import time
 
-from sqlalchemy import Sequence, Column, ForeignKey
+from sqlalchemy import Column, ForeignKey
 
 # column types
-from sqlalchemy import Integer, String, Unicode
-from sqlalchemy import Boolean, Date, LargeBinary
+from sqlalchemy import Integer, Unicode
 from sqlalchemy import PickleType
 from sqlalchemy import Enum
 from sqlalchemy import DateTime
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -36,14 +34,14 @@ class SerialBase(object):
 
 
 ####################################
-## Data Types                     ##
+#  Data Types                     ##
 ####################################
 
 FileType = Enum('agenda', 'minutes', 'attachment',
                 name='file_type_enum')
 
 ####################################
-## Tables                         ##
+#  Tables                         ##
 ####################################
 
 
@@ -84,7 +82,7 @@ class MainCache(Base, SerialBase):
 
 
 ####################################
-## Relationships                  ##
+#  Relationships                  ##
 ####################################
 
 FilePath.whereis = relationship(WhereIs)

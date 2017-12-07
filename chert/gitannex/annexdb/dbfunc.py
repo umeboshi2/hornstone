@@ -1,26 +1,19 @@
 import os
 import json
 from datetime import datetime
-import zipfile
 import tempfile
 
 from sqlalchemy import func
 from sqlalchemy import distinct
-from sqlalchemy import or_
 from sqlalchemy import desc
 
 from sqlalchemy.orm.exc import NoResultFound
 
 from chert.base import remove_trailing_slash
 
-from chert.archivefiles import parse_archive_file
-from chert.archivefiles import get_archive_type
-
 from chert import gitannex
 
 from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
-from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
-from chert.gitannex.annexdb.schema import ArchiveEntryKey
 from chert.gitannex.annexdb.schema import RepoFile
 
 
@@ -68,9 +61,9 @@ def compare_two_dirs(session, dir_one, dir_two):
     dir_one = remove_trailing_slash(dir_one)
     dir_two = remove_trailing_slash(dir_two)
     dfq = make_dupefile_query(session)
-    ddict = make_dupedict(dfq)
     sets_of_interest = dict()
     current_set = dict()
+    dupedict = make_dupedict(dfq)
     for annex_key in dupedict:
         dir_one_present = False
         dir_two_present = False
@@ -127,7 +120,6 @@ def get_find_data(session,
                   output_to_file=False,
                   output_filename='find.output'):
     proc = gitannex.make_find_proc()
-    #import pdb ; pdb.set_trace()
     count = 0
     if output_to_file:
         outfile = open(output_filename, 'w')
@@ -278,10 +270,8 @@ def add_files(session, keylookup, find_output_filename):
                 line,
                 convert_to_unicode=True,
                 verbose_warning=True)
-            commit = False
             add_file_to_database(session, keylookup, data)
             if not count % 5000:
-                commit = True
                 print("Committing %d files" % count)
                 now = datetime.now()
                 print("Diff", now - current)
@@ -312,10 +302,8 @@ def add_new_files(session, keylookup, newfiles):
     current = datetime.now()
     for data in newfiles:
         count += 1
-        commit = False
         add_new_file_to_database(session, data)
         if not count % 5000:
-            commit = True
             print("Committing %d files" % count)
             now = datetime.now()
             print("Diff", now - current)
@@ -354,7 +342,7 @@ def populate_database(session):
 ################################
 # JUNK
 ################################
-
+junk = """
 def _various_queries():
     mq = s.query(AnnexKey, AnnexFile)
     fq = mq.filter(AnnexKey.id == AnnexFile.key_id)
@@ -370,6 +358,9 @@ def _various_queries():
 
     #q = make_dupe_count_query(s)
     sq = make_dupe_count_query(s).subquery()
-    #q = s.query(sq, AnnexFile).filter(sq.c.key_id == AnnexFile.key_id).order_by(AnnexFile.key_id)
+
+    #q = s.query(sq, AnnexFile).filter(sq.c.key_id == AnnexFile.key_id)
+         .order_by(AnnexFile.key_id)
     q = s.query(sq, AnnexKey).filter(
         sq.c.key_id == AnnexKey.id).order_by(AnnexKey.id)
+"""

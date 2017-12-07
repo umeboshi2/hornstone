@@ -1,13 +1,10 @@
-from configparser import ConfigParser
-from io import StringIO
-
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
 from ..alchemy import TimeStampMixin
 from .base import BaseIdMixin, BaseNameIdMixin
-from .base import UserOwnedMixin
+# from .base import UserOwnedMixin
 
 
 class PersonMixin(BaseNameIdMixin):

@@ -1,12 +1,7 @@
-from configparser import ConfigParser
-from io import StringIO
-
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
 
-from ..alchemy import TimeStampMixin
-from .base import BaseIdMixin, BaseLongNameIdMixin
+from .base import BaseLongNameIdMixin
 from .base import UserOwnedMixin
 
 DocType = sa.Enum('markdown', 'html',

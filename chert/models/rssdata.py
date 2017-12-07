@@ -1,10 +1,6 @@
-from configparser import ConfigParser
-from io import StringIO
-
-import sqlalchemy as sa
 from sqlalchemy import Column
-from sqlalchemy import Integer, Boolean
-from sqlalchemy import Unicode, UnicodeText
+from sqlalchemy import Integer
+from sqlalchemy import Unicode
 from sqlalchemy import ForeignKey, PickleType, DateTime
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship

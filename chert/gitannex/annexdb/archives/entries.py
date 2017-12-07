@@ -1,26 +1,13 @@
 import os
-import json
-from datetime import datetime
 import zipfile
 import tempfile
 
-from sqlalchemy import func
-from sqlalchemy import distinct
 from sqlalchemy import or_, and_
-from sqlalchemy import desc
-
-from sqlalchemy.orm.exc import NoResultFound
-
-from chert.base import remove_trailing_slash
 
 from chert.archivefiles import parse_archive_file
-from chert.archivefiles import get_archive_type
 
-from chert.gitannex import make_old_default_key, make_default_key
 
-from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
-from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
-from chert.gitannex.annexdb.schema import ArchiveEntryKey
+from chert.gitannex.annexdb.schema import ArchiveEntry
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'
@@ -40,7 +27,7 @@ def get_archive_entry_archive_files_query(session,
     else:
         filter = likezip
     if toplevel:
-        filter = and_(filter, ArchiveEntry.entry_id == None)
+        filter = and_(filter, ArchiveEntry.entry_id is None)
     return session.query(ArchiveEntry).filter(filter)
 
 
@@ -75,7 +62,6 @@ def insert_archive_entry_archive(session, archive_entry):
     tzfilename = make_archive_entry_zipfile(session, archive_entry)
     tzentries = parse_archive_file(tzfilename, sha256sum=True)
     os.remove(tzfilename)
-    entry_id = archive_entry.id
     for entry in tzentries:
         pass
 
@@ -85,5 +71,4 @@ def insert_archive_entry_archive_files(session, sha256sum=True,
     entries = get_archive_entry_archive_files_query(session)
     for entry in entries:
         tzfilename = make_archive_entry_zipfile(session, entry)
-        tzentries = parse_archive_file(tzfilename, sha256sum=True)
         os.remove(tzfilename)

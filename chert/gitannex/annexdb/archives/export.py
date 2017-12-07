@@ -1,26 +1,9 @@
 import os
 import json
-from datetime import datetime
 import zipfile
-import tempfile
 
-from sqlalchemy import func
-from sqlalchemy import distinct
-from sqlalchemy import or_, and_
-from sqlalchemy import desc
-
-from sqlalchemy.orm.exc import NoResultFound
-
-from chert.base import remove_trailing_slash
-
-from chert.archivefiles import parse_archive_file
-from chert.archivefiles import get_archive_type
-
-from chert.gitannex import make_old_default_key, make_default_key
-
-from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
-from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
-from chert.gitannex.annexdb.schema import ArchiveEntryKey
+from chert.gitannex.annexdb.schema import AnnexFile
+from chert.gitannex.annexdb.schema import ArchiveFile
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'
@@ -112,5 +95,4 @@ def export_all_archives(session, zipfilename, fail_on_dupe=False):
             arcname = '%s.json' % key
             fbytes = json.dumps(data)
             zfile.writestr(arcname, fbytes, zipfile.ZIP_DEFLATED)
-            #zfile.writestr(arcname, fbytes, zipfile.ZIP_STORED)
     return annexed_archives

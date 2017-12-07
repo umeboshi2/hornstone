@@ -2,16 +2,10 @@ import os
 import json
 from datetime import datetime
 import zipfile
-import tempfile
 
 from sqlalchemy import func
-from sqlalchemy import distinct
-from sqlalchemy import or_, and_
-from sqlalchemy import desc
-
+from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
-
-from chert.base import remove_trailing_slash
 
 from chert.archivefiles import parse_archive_file
 from chert.archivefiles import get_archive_type
@@ -134,7 +128,6 @@ def insert_archive_file(session, afile, sha256sum=True,
     session.add(af)
     for entry in entries:
         dbkey = get_archive_entry_key(session, entry, oldkey=True)
-        #import pdb ; pdb.set_trace()
         dbobj = ArchiveEntry()
         populate_db_archive_entry(dbobj, entry, archive_type)
         dbobj.archive_id = afile.id
@@ -239,7 +232,6 @@ def export_all_archives(session, zipfilename, fail_on_dupe=False):
             arcname = '%s.json' % key
             fbytes = json.dumps(data)
             zfile.writestr(arcname, fbytes, zipfile.ZIP_DEFLATED)
-            #zfile.writestr(arcname, fbytes, zipfile.ZIP_STORED)
     return annexed_archives
 
 
@@ -260,7 +252,6 @@ def _get_annex_key(session, key, fail_on_duplicate_archives=False):
 def import_annexed_archive_data(session, archive_data,
                                 fail_on_duplicate_archives=False):
     data = archive_data
-    archive_type = data['archive_type']
     key = data['key']
     annex_key = _get_annex_key(
         session, key,

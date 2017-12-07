@@ -1,24 +1,4 @@
-from datetime import datetime, date
-import time
-
-from sqlalchemy import Sequence, Column, ForeignKey
-
 # column types
-from sqlalchemy import Integer, String, Unicode
-from sqlalchemy import UnicodeText
-from sqlalchemy import Boolean, Date, LargeBinary
-from sqlalchemy import PickleType
-from sqlalchemy import Enum
-from sqlalchemy import DateTime
-from sqlalchemy import BigInteger
-
-from sqlalchemy.orm import relationship, backref
-
-from sqlalchemy.ext.declarative import declarative_base
-
-
-from chert.alchemy import SerialBase, TimeStampMixin
-
 from .githubdb import GitHubUser, GitHubRepo
 
 

@@ -1,13 +1,9 @@
-from configparser import ConfigParser
-from io import StringIO
-
-import sqlalchemy as sa
 from sqlalchemy import Column
-from sqlalchemy import Integer, Boolean
+from sqlalchemy import Integer
 from sqlalchemy import Unicode, UnicodeText
-from sqlalchemy import ForeignKey, PickleType
+from sqlalchemy import PickleType
+from sqlalchemy import DateTime
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
 
 from chert.alchemy import TimeStampMixin
 

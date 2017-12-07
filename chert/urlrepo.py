@@ -1,11 +1,9 @@
 import os
 import uuid as UUID
 
-#from useless.base.path import path
 from unipath.path import Path as path
-from unipath import FILES, DIRS, LINKS
 
-from chert.base import get_sha256sum, get_sha256sum_string
+from chert.base import get_sha256sum_string
 
 FILE_EXTENSIONS = ['jpg', 'png', 'gif']
 
@@ -14,20 +12,21 @@ class ImageRepo(object):
     def __init__(self, repo_path):
         self.repo_path = path(repo_path)
 
-    def _get_top_bottom(self, checksum):
-        return tuple(checksum.split(h[2:-2]))
+    def _get_top_bottom(self, uuid):
+        h = uuid.hex
+        return tuple(h.split(h[2:-2]))
 
     def _repo_dir(self, checksum):
         top, bottom = self._get_top_bottom(checksum)
         return os.path.join(self.repo_path, top, bottom)
 
-    def relname(self, checksum):
-        #top, bottom = self._get_top_bottom(checksum)
+    def relname(self, checksum, ext):
+        # top, bottom = self._get_top_bottom(checksum)
         # return os.path.join(top, bottom, checksum)
         return '%s.%s' % (checksum, ext)
 
     def filename(self, checksum, ext):
-        #dirname = self._repo_dir(checksum)
+        # dirname = self._repo_dir(checksum)
         # return os.path.join(dirname, checksum)
         return os.path.join(self.repo_path, '%s.%s' % (checksum, ext))
 

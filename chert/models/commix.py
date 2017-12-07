@@ -1,18 +1,17 @@
 import datetime
-import sqlalchemy as sa
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import Unicode, UnicodeText
 from sqlalchemy import ForeignKey, Boolean
-from sqlalchemy import Date, Time, DateTime
+from sqlalchemy import Date, Time
 from sqlalchemy import Enum
 from sqlalchemy import PickleType
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from ..alchemy import TimeStampMixin
 
-########################### RULES ##############################
+# ########################## RULES ##############################
 # A User has a single Contact (one contact:many users).
 #
 #   An Event depends on an EventType.  An EventType must be
@@ -146,10 +145,6 @@ class VenueMixin(TimeStampMixin):
     @declared_attr
     def user_id(self):
         return Column(Integer, ForeignKey('users.id'))
-
-    @declared_attr
-    def name(self):
-        return Column(IntegerUnicode(50))
 
     @declared_attr
     def description(self):

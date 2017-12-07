@@ -1,11 +1,7 @@
 import os
-import sys
-from datetime import datetime, date
-import time
 import subprocess
 
 from unipath.path import Path as path
-from unipath import FILES, DIRS, LINKS
 from git import Repo
 
 from .githubdb import GitHubUser, GitHubRepo

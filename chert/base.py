@@ -1,10 +1,5 @@
 import os
 import hashlib
-import subprocess
-import json
-
-from unipath.path import Path as path
-from unipath import FILES, DIRS, LINKS
 
 
 # http://code.activestate.com/recipes/576620-changedirectory-context-manager/
@@ -26,11 +21,11 @@ class WorkingDirectory(object):
     def relative(self):
         c = self._cwd.split(os.path.sep)
         p = self._pwd.split(os.path.sep)
-        l = min(len(c), len(p))
+        shortlen = min(len(c), len(p))
         i = 0
-        while i < l and c[i] == p[i]:
+        while i < shortlen and c[i] == p[i]:
             i += 1
-        return os.path.normpath(os.path.join(*(['.'] + (['..'] * (len(c) - i)) + p[i:])))
+        return os.path.normpath(os.path.join(*(['.'] + (['..'] * (len(c) - i)) + p[i:])))  # noqa
 
     def __enter__(self):
         self._pwd = self._cwd

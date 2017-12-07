@@ -1,22 +1,5 @@
-import os
-import json
-from datetime import datetime
-import zipfile
-import tempfile
-
 from sqlalchemy import func
-from sqlalchemy import distinct
 from sqlalchemy import or_, and_
-from sqlalchemy import desc
-
-from sqlalchemy.orm.exc import NoResultFound
-
-from chert.base import remove_trailing_slash
-
-from chert.archivefiles import parse_archive_file
-from chert.archivefiles import get_archive_type
-
-from chert.gitannex import make_old_default_key, make_default_key
 
 from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
 from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
@@ -110,7 +93,7 @@ def get_archive_entry_archive_files_query(session,
     else:
         filter = likezip
     if toplevel:
-        filter = and_(filter, ArchiveEntry.entry_id == None)
+        filter = and_(filter, ArchiveEntry.entry_id is None)
     return session.query(ArchiveEntry).filter(filter)
 
 

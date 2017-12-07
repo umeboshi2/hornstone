@@ -128,6 +128,7 @@ def parse_zip_archive(filename, sha256sum=False):
             entries.append(parsed)
     return entries
 
+
 archive_parser = dict(zip=parse_zip_archive, rar=parse_rar_archive)
 
 
