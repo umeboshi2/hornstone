@@ -5,16 +5,16 @@ import zipfile
 import tempfile
 import subprocess
 
-#from useless.base.path import path
 from unipath.path import Path as path
-from unipath import FILES, DIRS, LINKS
+# from unipath import FILES, DIRS, LINKS
 
 import rarfile
+
+from .base import get_sha256sum
+
+
 rarfile.UNRAR_TOOL = 'rar'
 rarfile.PATH_SEP = os.path.sep
-
-
-from chert.base import get_sha256sum
 
 # date_time and CRC handled separately
 COMPATIBLE_ARCHIVE_INFO_ATTRIBUTES = ['comment', 'compress_size',
@@ -40,7 +40,6 @@ ARCHIVE_FILECLASS = dict(zip=zipfile.ZipFile, rar=rarfile.RarFile)
 
 
 def parse_archive_info(info, archive_type):
-    #print "Parsing", info.filename
     data = dict()
     for att in ARCHIVE_ATTRIBUTES[archive_type]:
         value = getattr(info, att)
@@ -52,6 +51,7 @@ def parse_archive_info(info, archive_type):
     data['date_time'] = datetime(*info.date_time)
     return data
 
+
 def get_archive_type(filename):
     lname = filename.lower()
     if lname.endswith('.zip'):
@@ -59,7 +59,7 @@ def get_archive_type(filename):
     elif lname.endswith('.rar'):
         archive_type = 'rar'
     else:
-        raise RuntimeError("unable to handle archive %s" % filename)    
+        raise RuntimeError("unable to handle archive %s" % filename)
     return archive_type
 
 
@@ -114,6 +114,7 @@ def parse_rar_archive(filename, sha256sum=False):
     os.chdir(here)
     return entries
 
+
 def parse_zip_archive(filename, sha256sum=False):
     entries = list()
     with zipfile.ZipFile(filename, 'r') as afile:
@@ -128,7 +129,8 @@ def parse_zip_archive(filename, sha256sum=False):
     return entries
 
 archive_parser = dict(zip=parse_zip_archive, rar=parse_rar_archive)
-            
+
+
 def parse_archive_file(filename, sha256sum=False):
     archive_type = get_archive_type(filename)
     try:
@@ -136,4 +138,3 @@ def parse_archive_file(filename, sha256sum=False):
     except zipfile.BadZipfile:
         print("WARNING, bad zip file: %s" % filename)
         return list()
-    

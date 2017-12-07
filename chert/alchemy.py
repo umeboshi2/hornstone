@@ -2,7 +2,7 @@ import warnings
 from datetime import datetime, date
 
 import sqlalchemy as sa
-from sqlalchemy import Column, DateTime, PickleType, func
+from sqlalchemy import PickleType
 
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
@@ -11,20 +11,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 from sqlalchemy_utils import Timestamp
-
-# Recommended naming convention used by Alembic, as various different database
-# providers will autogenerate vastly different names making migrations more
-# difficult. See: http://alembic.zzzcomputing.com/en/latest/naming.html
-NAMING_CONVENTION = {
-    "ix": 'ix_%(column_0_label)s',
-    "uq": "uq_%(table_name)s_%(column_0_name)s",
-    "ck": "ck_%(table_name)s_%(constraint_name)s",
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
-}
-
-metadata = MetaData(naming_convention=NAMING_CONVENTION)
-Base = declarative_base(metadata=metadata)
 
 # http://stackoverflow.com/questions/4617291/how-do-i-get-a-raw-compiled-sql-query-from-a-sqlalchemy-expression
 from sqlalchemy.sql import compiler
@@ -45,6 +31,20 @@ def compile_query(query):
     return (comp.string.encode(enc) % params).decode(enc)
 
 
+# Recommended naming convention used by Alembic, as various different database
+# providers will autogenerate vastly different names making migrations more
+# difficult. See: http://alembic.zzzcomputing.com/en/latest/naming.html
+NAMING_CONVENTION = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
+metadata = MetaData(naming_convention=NAMING_CONVENTION)
+Base = declarative_base(metadata=metadata)
+
 
 # inspired by ziggurat_foundations
 class BaseModel(object):
@@ -58,13 +58,13 @@ class BaseModel(object):
         'returns primary key'
         return sa.orm.class_mapper(cls).primary_key
 
-
     def to_dict(self):
         data = {}
         for key in self._get_keys():
             data[key] = getattr(self, key)
         return data
     
+
 class SerialBase(BaseModel):
     def serialize(self):
         data = dict()
@@ -91,7 +91,6 @@ class SerialBase(BaseModel):
         return data
 
 
-
 class TimeStampMixin(SerialBase, Timestamp):
     @property
     def created_at(self):
@@ -102,10 +101,10 @@ class TimeStampMixin(SerialBase, Timestamp):
     def updated_at(self):
         warnings.warn("updated_at no longer needed")
         return super(Timestamp, self).updated
-    
-    
+
+
 def _make_db_session(dburl, create_all=False, baseclass=None):
-    settings = {'sqlalchemy.url' : dburl}
+    settings = {'sqlalchemy.url': dburl}
     engine = engine_from_config(settings)
     if create_all:
         baseclass.metadata.create_all(engine)
@@ -113,12 +112,13 @@ def _make_db_session(dburl, create_all=False, baseclass=None):
     session_class.configure(bind=engine)
     return session_class
 
+
 def make_sqlite_session(filename, create_all=False, baseclass=None):
     dburl = "sqlite:///%s" % filename
     return _make_db_session(dburl, create_all=create_all,
                             baseclass=baseclass)
 
+
 def make_postgresql_session(dburl, create_all=False, baseclass=None):
     return _make_db_session(dburl, create_all=create_all,
                             baseclass=baseclass)
-
