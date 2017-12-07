@@ -1,11 +1,11 @@
 =====
-chert
+hornstone
 =====
 
 
 
-.. image:: https://pyup.io/repos/github/umeboshi2/chert/shield.svg
-     :target: https://pyup.io/repos/github/umeboshi2/chert/
+.. image:: https://pyup.io/repos/github/umeboshi2/hornstone/shield.svg
+     :target: https://pyup.io/repos/github/umeboshi2/hornstone/
      :alt: Updates
 
 

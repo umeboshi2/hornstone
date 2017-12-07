@@ -3,7 +3,7 @@ import uuid as UUID
 
 from unipath.path import Path as path
 
-from chert.base import get_sha256sum_string
+from hornstone.base import get_sha256sum_string
 
 FILE_EXTENSIONS = ['jpg', 'png', 'gif']
 

@@ -39,19 +39,19 @@ test_requirements = [
 ]
 
 setup(
-    name='chert',
+    name='hornstone',
     version='0.1.2',
     description="A bunch of rocks",
     long_description=readme + '\n\n' + history,
     author="Joseph Rawson",
     author_email='joseph.rawson.works@gmail.com',
-    url='https://github.com/umeboshi2/chert',
+    url='https://github.com/umeboshi2/hornstone',
     license='Public Domain',
-    packages=find_packages(include=['chert']),
+    packages=find_packages(include=['hornstone']),
     include_package_data=True,
     install_requires=requirements,
     zip_safe=False,
-    keywords='chert',
+    keywords='hornstone',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

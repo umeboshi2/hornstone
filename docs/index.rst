@@ -1,4 +1,4 @@
-Welcome to chert's documentation!
+Welcome to hornstone's documentation!
 ======================================
 
 Contents:

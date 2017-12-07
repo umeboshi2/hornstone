@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for chert
+# prerm script for hornstone
 #
 # see: dh_installdeb(1)
 

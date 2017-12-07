@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for chert
+# postinst script for hornstone
 #
 # see: dh_installdeb(1)
 

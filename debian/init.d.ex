@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          chert
+# Provides:          hornstone
 # Required-Start:    $network $local_fs
 # Required-Stop:
 # Default-Start:     2 3 4 5
@@ -15,9 +15,9 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC=chert             # Introduce a short description here
-NAME=chert             # Introduce the short server's name here
-DAEMON=/usr/sbin/chert # Introduce the server's location here
+DESC=hornstone             # Introduce a short description here
+NAME=hornstone             # Introduce the short server's name here
+DAEMON=/usr/sbin/hornstone # Introduce the server's location here
 DAEMON_ARGS=""             # Arguments to run the daemon with
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME

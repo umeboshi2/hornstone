@@ -9,12 +9,12 @@ from sqlalchemy import desc
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from chert.base import remove_trailing_slash
+from hornstone.base import remove_trailing_slash
 
-from chert import gitannex
+from hornstone import gitannex
 
-from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
-from chert.gitannex.annexdb.schema import RepoFile
+from hornstone.gitannex.annexdb.schema import AnnexKey, AnnexFile
+from hornstone.gitannex.annexdb.schema import RepoFile
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'

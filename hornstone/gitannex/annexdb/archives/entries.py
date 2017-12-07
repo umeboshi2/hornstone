@@ -4,10 +4,10 @@ import tempfile
 
 from sqlalchemy import or_, and_
 
-from chert.archivefiles import parse_archive_file
+from hornstone.archivefiles import parse_archive_file
 
 
-from chert.gitannex.annexdb.schema import ArchiveEntry
+from hornstone.gitannex.annexdb.schema import ArchiveEntry
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'

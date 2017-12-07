@@ -2,8 +2,8 @@ import os
 import json
 import zipfile
 
-from chert.gitannex.annexdb.schema import AnnexFile
-from chert.gitannex.annexdb.schema import ArchiveFile
+from hornstone.gitannex.annexdb.schema import AnnexFile
+from hornstone.gitannex.annexdb.schema import ArchiveFile
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'

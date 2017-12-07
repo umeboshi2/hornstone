@@ -1,9 +1,9 @@
 from sqlalchemy import func
 from sqlalchemy import or_, and_
 
-from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
-from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
-from chert.gitannex.annexdb.schema import ArchiveEntryKey
+from hornstone.gitannex.annexdb.schema import AnnexKey, AnnexFile
+from hornstone.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
+from hornstone.gitannex.annexdb.schema import ArchiveEntryKey
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'

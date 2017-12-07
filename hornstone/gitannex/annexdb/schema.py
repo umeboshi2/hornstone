@@ -10,7 +10,7 @@ from sqlalchemy import BigInteger
 
 from sqlalchemy.orm import relationship
 
-from chert.alchemy import SerialBase
+from hornstone.alchemy import SerialBase
 
 
 ####################################

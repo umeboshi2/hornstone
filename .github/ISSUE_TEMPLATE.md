@@ -1,4 +1,4 @@
-* chert version:
+* hornstone version:
 * Python version:
 * Operating System:
 

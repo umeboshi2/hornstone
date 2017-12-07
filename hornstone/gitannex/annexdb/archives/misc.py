@@ -7,14 +7,14 @@ from sqlalchemy import func
 from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
-from chert.archivefiles import parse_archive_file
-from chert.archivefiles import get_archive_type
+from hornstone.archivefiles import parse_archive_file
+from hornstone.archivefiles import get_archive_type
 
-from chert.gitannex import make_old_default_key, make_default_key
+from hornstone.gitannex import make_old_default_key, make_default_key
 
-from chert.gitannex.annexdb.schema import AnnexKey, AnnexFile
-from chert.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
-from chert.gitannex.annexdb.schema import ArchiveEntryKey
+from hornstone.gitannex.annexdb.schema import AnnexKey, AnnexFile
+from hornstone.gitannex.annexdb.schema import ArchiveFile, ArchiveEntry
+from hornstone.gitannex.annexdb.schema import ArchiveEntryKey
 
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'

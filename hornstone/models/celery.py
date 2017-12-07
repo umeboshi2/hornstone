@@ -5,7 +5,7 @@ from sqlalchemy import PickleType
 from sqlalchemy import DateTime
 from sqlalchemy.ext.declarative import declared_attr
 
-from chert.alchemy import TimeStampMixin
+from hornstone.alchemy import TimeStampMixin
 
 
 class CeleryTaskMixin(TimeStampMixin):

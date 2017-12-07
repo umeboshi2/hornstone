@@ -9,7 +9,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import BigInteger
 
 
-from chert.alchemy import TimeStampMixin
+from hornstone.alchemy import TimeStampMixin
 
 
 ####################################

@@ -1,4 +1,4 @@
-chert for Debian
+hornstone for Debian
 ----------------
 
 <this file describes information about the source package, see Debian policy
@@ -7,3 +7,5 @@ manual section 4.14. You WILL either need to modify or delete this file>
 
 
 
+
+ -- Joseph Rawson <joseph.rawson.works@gmail.com> <umeboshi@bard>, Wed,  6 Dec 2017 23:51:04 -0600

@@ -1,14 +1,14 @@
-Source: chert
+Source: hornstone
 Section: unknown
 Priority: extra
 Maintainer: Joseph Rawson <umeboshi@paperboy>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.3
 Homepage: <insert the upstream URL, if relevant>
-#Vcs-Git: git://git.debian.org/collab-maint/chert.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/chert.git;a=summary
+#Vcs-Git: git://git.debian.org/collab-maint/hornstone.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/hornstone.git;a=summary
 
-Package: chert
+Package: hornstone
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, python-sqlalchemy, python-unipath,
  python-requests, python-rarfile

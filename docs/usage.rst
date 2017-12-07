@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use chert in a project::
+To use hornstone in a project::
 
-    import chert
+    import hornstone

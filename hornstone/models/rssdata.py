@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, PickleType, DateTime
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
-from chert.alchemy import TimeStampMixin
+from hornstone.alchemy import TimeStampMixin
 
 
 class FeedMixin(TimeStampMixin):

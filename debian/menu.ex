@@ -1,2 +1,2 @@
-?package(chert):needs="X11|text|vc|wm" section="Applications/see-menu-manual"\
-  title="chert" command="/usr/bin/chert"
+?package(hornstone):needs="X11|text|vc|wm" section="Applications/see-menu-manual"\
+  title="hornstone" command="/usr/bin/hornstone"

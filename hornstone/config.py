@@ -4,13 +4,13 @@ from io import StringIO
 
 
 DEFAULT_CONFIG_TEXT = """\
-# Configuration file for chert
+# Configuration file for hornstone
 
 [main]
 # put something here....
 """
 
-default_file = os.path.expanduser('~/.config/chert/chert.ini')
+default_file = os.path.expanduser('~/.config/hornstone/hornstone.ini')
 config = ConfigParser()
 if not os.path.isfile(default_file):
     dirname = os.path.dirname(default_file)

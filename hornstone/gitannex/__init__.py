@@ -6,8 +6,8 @@ import json
 import socket
 
 
-from chert.base import WorkingDirectory
-from chert.gitfunc import assert_git_directory
+from hornstone.base import WorkingDirectory
+from hornstone.gitfunc import assert_git_directory
 
 zero_key_old = 'SHA256-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'  # noqa
 

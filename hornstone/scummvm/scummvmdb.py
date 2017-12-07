@@ -9,7 +9,7 @@ from sqlalchemy import (
     )
 from sqlalchemy.orm import relationship
 
-from chert.alchemy import Base, SerialBase
+from hornstone.alchemy import Base, SerialBase
 
 ####################################
 # Data Types                     ###
