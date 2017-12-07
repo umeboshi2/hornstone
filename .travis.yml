@@ -9,12 +9,12 @@ deploy:
       PQ==
   distributions: sdist bdist_wheel
   user: Joseph.Rawson
-  true:
+  on:
     python: 3.5
     repo: umeboshi2/chert
     tags: true
 install: pip install -U tox-travis
 language: python
 python:
-- 3.5
+  - 3.5
 script: tox
