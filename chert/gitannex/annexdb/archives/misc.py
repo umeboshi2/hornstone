@@ -33,24 +33,25 @@ def archive_filename_filter(query, oclass, attr, rarfiles=False):
         return query.filter(or_(likezip, likerar))
     return query.filter(likezip)
 
+
 def archive_filename_query(session, oclass, attr, rarfiles=False):
     query = session.query(oclass)
     return archive_filename_filter(query, oclass, attr, rarfiles=rarfiles)
 
-    
+
 def get_annexed_archives_query(session, rarfiles=False):
     return archive_filename_query(session, AnnexFile,
                                   'name', rarfiles=rarfiles)
+
 
 def get_entry_archives_query(session, rarfiles=False):
     return archive_filename_query(session, ArchiveEntry,
                                   'filename', rarfiles=rarfiles)
 
 
-
 def get_archive_files_new(query, rarfiles=False):
-    q =  archive_filename_filter(query, AnnexFile, 'name',
-                                  rarfiles=rarfiles)
+    q = archive_filename_filter(query, AnnexFile, 'name',
+                                rarfiles=rarfiles)
     return q.all()
 
 
@@ -58,27 +59,30 @@ def get_archive_files(query, rarfiles=False):
     files = list()
     for afile in query:
         name = afile.name.lower()
-        #print "Name is %s" % name
+        # print "Name is %s" % name
         if name.endswith('.zip'):
             files.append(afile)
-        elif rarfiles and  name.endswith('.rar'):
+        elif rarfiles and name.endswith('.rar'):
             files.append(afile)
         else:
             continue
     return files
+
 
 def populate_db_archive_entry(dbobj, parsed_entry, archive_type):
     for key in ['ctime', 'mtime', 'atime']:
         if key in parsed_entry and parsed_entry[key] is not None:
             value = parsed_entry[key]
             if type(value) is tuple:
-                parsed_entry[key] = datetime(*(int(t) for t in parsed_entry[key]))
+                parsed_entry[key] = datetime(
+                    *(int(t) for t in parsed_entry[key]))
             elif type(value) is str:
                 parsed_entry[key] = datetime.strptime(value, dt_isoformat)
     for key in parsed_entry:
         value = parsed_entry[key]
         setattr(dbobj, key, value)
     dbobj.archive_type = archive_type
+
 
 def make_key_from_archive_entry(entry, oldkey=True):
     size = entry['bytesize']
@@ -88,11 +92,13 @@ def make_key_from_archive_entry(entry, oldkey=True):
     ext = entry['filename'].split('.')[-1]
     return make_default_key(size, checksum, ext)
 
+
 def create_archive_entry_key(session, key):
     dbkey = ArchiveEntryKey()
     dbkey.name = key
     session.add(dbkey)
     return session.merge(dbkey)
+
 
 def get_archive_entry_key(session, entry, oldkey=True):
     key = make_key_from_archive_entry(entry, oldkey=oldkey)
@@ -102,7 +108,7 @@ def get_archive_entry_key(session, entry, oldkey=True):
         dbkey = create_archive_entry_key(session, key)
     return dbkey
 
-        
+
 def insert_archive_file(session, afile, sha256sum=True,
                         archive_data=None, annexpath=None):
     archived = session.query(ArchiveFile).get(afile.id)
@@ -137,12 +143,13 @@ def insert_archive_file(session, afile, sha256sum=True,
             dbobj.date_time = datetime.strptime(dbobj.date_time, dt_isoformat)
             for att in ['ctime', 'mtime', 'atime']:
                 value = getattr(dbobj, att)
-                if value  is not None: 
+                if value is not None:
                     dt = datetime.strptime(value, dt_isoformat)
                     setattr(dbobj, att, dt)
         session.add(dbobj)
     session.commit()
-    print("Successful commit of %s with %d entries" % (afile.name, len(entries)))
+    print("Successful commit of %s with %d entries" %
+          (afile.name, len(entries)))
 
 
 EXAMPLE_ARCHIVE_DATA = dict(
@@ -167,25 +174,24 @@ EXAMPLE_ARCHIVE_DATA = dict(
 
 def _export_archive_file_dbobject(archivefile):
     entries = [e.serialize() for e in archivefile.entries]
-    data = dict(entries=entries, 
+    data = dict(entries=entries,
                 archive_type=archivefile.archive_type)
     return data
 
 
-
-    
 def export_archive_manifest(session, fileid=None, name=None):
     if fileid is None and name is None:
         raise RuntimeError("need either fileid or name")
     if fileid is not None:
         afile = session.query(ArchiveFile).get(fileid)
     elif name is not None:
-        q = session.query(ArchiveFile, AnnexFile).filter(AnnexFile.name == name)
+        q = session.query(ArchiveFile, AnnexFile).filter(
+            AnnexFile.name == name)
         afile = q.one()
     if afile is not None:
         return _export_archive_file_dbobject(afile)
 
-    
+
 def export_annexed_archive_data(session, annexed_file):
     data = annexed_file.serialize()
     if 'key' in data:
@@ -196,13 +202,13 @@ def export_annexed_archive_data(session, annexed_file):
         data.update(_export_archive_file_dbobject(arfile))
     return data
 
+
 def export_archive_to_file(session, annexed_file, directory):
     data = export_annexed_archive_data(session, annexed_file)
     name = '%s.json' % data['key']
     filename = os.path.join(directory, name)
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
-        
 
 
 def annexed_archives_query(session):
@@ -210,7 +216,8 @@ def annexed_archives_query(session):
     archives_subquery = session.query(ArchiveFile.id).subquery()
     in_archives_clause = AnnexFile.id.in_(archives_subquery)
     return annex_query.filter(in_archives_clause)
-    
+
+
 def export_all_archives(session, zipfilename, fail_on_dupe=False):
     annexed_archives = annexed_archives_query(session)
     keys = list()
@@ -249,6 +256,7 @@ def _get_annex_key(session, key, fail_on_duplicate_archives=False):
         raise RuntimeError("Duplicate archives in annex: %s" % dfiles)
     return annex_key
 
+
 def import_annexed_archive_data(session, archive_data,
                                 fail_on_duplicate_archives=False):
     data = archive_data
@@ -260,20 +268,14 @@ def import_annexed_archive_data(session, archive_data,
     annex_file = annex_key.files[0]
     insert_archive_file(session, annex_file,
                         archive_data=data)
-    
 
-    
-    
 
 def import_annexed_archives(session, zipfilename):
     with zipfile.ZipFile(zipfilename, 'r') as zfile:
         for ainfo in zfile.infolist():
             data = json.load(zfile.open(ainfo))
             import_annexed_archive_data(session, data)
-            
-            
 
-    
 
 def common_key_query(session):
     q = session.query(AnnexKey, ArchiveEntryKey)
@@ -286,6 +288,8 @@ def count_archive_annex_key_func():
 
 # this returns a tuple of two integers
 # (key_id, count(key_id))
+
+
 def make_dupe_archive_entry_count_query(session):
     cf = count_archive_annex_key_func()
     cq = session.query(ArchiveEntry.key_id, cf).group_by(ArchiveEntry.key_id)
@@ -293,11 +297,7 @@ def make_dupe_archive_entry_count_query(session):
     return session.query(cq).filter(cq.c.key_count > 1)
 
 
-
 def delete_archive_dbobjects(session):
     for obj in ArchiveEntry, ArchiveEntryKey, ArchiveFile:
         session.query(obj).delete()
     session.commit()
-    
-
-

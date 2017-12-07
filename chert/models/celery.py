@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 
 from chert.alchemy import TimeStampMixin
 
+
 class CeleryTaskMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -23,7 +24,7 @@ class CeleryTaskMixin(TimeStampMixin):
     @declared_attr
     def task_id(self):
         return Column(Unicode(255))
-    
+
     @declared_attr
     def status(self):
         return Column(Unicode(50))
@@ -35,7 +36,7 @@ class CeleryTaskMixin(TimeStampMixin):
     @declared_attr
     def date_done(self):
         return Column(DateTime)
-    
+
     @declared_attr
     def traceback(self):
         return Column(UnicodeText)

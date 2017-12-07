@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from datetime import datetime, date
 import time
 import subprocess
@@ -8,6 +9,7 @@ from unipath import FILES, DIRS, LINKS
 from git import Repo
 
 from .githubdb import GitHubUser, GitHubRepo
+
 
 class RepoManager(object):
     def __init__(self, session, user_id):
@@ -21,17 +23,14 @@ class RepoManager(object):
         if not repo_path.isdir():
             raise RuntimeError("%s doesn't exist." % repo_path)
         self.repo_path = repo_path
-        
 
     def set_github_client(self, ghclient):
         self.ghclient = ghclient
-        
 
     def get_my_repos(self):
         user_id = self.user.id
         q = self.session.query(GitHubRepo).filter_by(owner_id=user_id)
         return q.all()
-    
 
     def local_reponame(self, dbrepo):
         reponame = dbrepo.full_name
@@ -48,7 +47,7 @@ class RepoManager(object):
             dirname = self.local_reponame(dbrepo)
             cmd = ['rm', '-fr', str(dirname)]
             subprocess.check_call(cmd)
-            
+
     def clone_repo(self, dbrepo, reponame=None, size_limit=None):
         if size_limit is not None:
             if dbrepo.size > size_limit:
@@ -62,8 +61,7 @@ class RepoManager(object):
 
     def local_repo(self, dbrepo):
         return Repo(self.local_reponame(dbrepo))
-    
-            
+
     def _clone_repolist(self, repolist, size_limit=None):
         for repo in repolist:
             reponame = self.local_reponame(repo)
@@ -71,17 +69,15 @@ class RepoManager(object):
                 self.clone_repo(repo,
                                 reponame=reponame,
                                 size_limit=size_limit)
-            
+
     def clone_my_repos(self, size_limit=1000):
         my_repos = self.get_my_repos()
         self._clone_repolist(my_repos, size_limit=size_limit)
-        
+
     def clone_other_repos(self, size_limit=1000):
         query = self.session.query(GitHubRepo)
         others = query.filter(GitHubRepo.owner_id != self.user.id)
         self._clone_repolist(others, size_limit=size_limit)
-        
-                
+
     def update_from_github(self):
         pass
-    

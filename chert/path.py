@@ -33,8 +33,14 @@ Date:    7 Mar 2004
 #   - Could add split() and join() methods that generate warnings.
 
 
-
-import sys, warnings, os, fnmatch, glob, shutil, codecs, hashlib
+import sys
+import warnings
+import os
+import fnmatch
+import glob
+import shutil
+import codecs
+import hashlib
 
 __version__ = '2.1'
 __all__ = ['path']
@@ -58,6 +64,7 @@ _textmode = 'U'
 class TreeWalkWarning(Warning):
     pass
 
+
 class path(str):
     """ Represents a filesystem path.
 
@@ -74,7 +81,7 @@ class path(str):
     def __add__(self, more):
         try:
             resultStr = _base.__add__(self, more)
-        except TypeError:  #Python bug
+        except TypeError:  # Python bug
             resultStr = NotImplemented
         if resultStr is NotImplemented:
             return resultStr
@@ -103,17 +110,23 @@ class path(str):
         return cls(_getcwd())
     getcwd = classmethod(getcwd)
 
-
     # --- Operations on path strings.
 
     isabs = os.path.isabs
-    def abspath(self):       return self.__class__(os.path.abspath(self))
-    def normcase(self):      return self.__class__(os.path.normcase(self))
-    def normpath(self):      return self.__class__(os.path.normpath(self))
-    def realpath(self):      return self.__class__(os.path.realpath(self))
-    def expanduser(self):    return self.__class__(os.path.expanduser(self))
-    def expandvars(self):    return self.__class__(os.path.expandvars(self))
-    def dirname(self):       return self.__class__(os.path.dirname(self))
+
+    def abspath(self): return self.__class__(os.path.abspath(self))
+
+    def normcase(self): return self.__class__(os.path.normcase(self))
+
+    def normpath(self): return self.__class__(os.path.normpath(self))
+
+    def realpath(self): return self.__class__(os.path.realpath(self))
+
+    def expanduser(self): return self.__class__(os.path.expanduser(self))
+
+    def expandvars(self): return self.__class__(os.path.expandvars(self))
+
+    def dirname(self): return self.__class__(os.path.dirname(self))
     basename = os.path.basename
 
     def expand(self):
@@ -334,7 +347,7 @@ class path(str):
         whose names match the given pattern.  For example,
         d.files('*.pyc').
         """
-        
+
         return [p for p in self.listdir(pattern) if p.isfile()]
 
     def walk(self, pattern=None, errors='strict'):
@@ -488,7 +501,6 @@ class path(str):
         """
         cls = self.__class__
         return [cls(s) for s in glob.glob(_base(self / pattern))]
-
 
     # --- Reading or writing an entire file at once.
 
@@ -819,11 +831,13 @@ class path(str):
             desc = win32security.GetFileSecurity(
                 self, win32security.OWNER_SECURITY_INFORMATION)
             sid = desc.GetSecurityDescriptorOwner()
-            account, domain, typecode = win32security.LookupAccountSid(None, sid)
+            account, domain, typecode = win32security.LookupAccountSid(
+                None, sid)
             return domain + '\\' + account
         else:
             if pwd is None:
-                raise NotImplementedError("path.owner is not implemented on this platform.")
+                raise NotImplementedError(
+                    "path.owner is not implemented on this platform.")
             st = self.stat()
             return pwd.getpwuid(st.st_uid).pw_name
 
@@ -839,7 +853,6 @@ class path(str):
     if hasattr(os, 'pathconf'):
         def pathconf(self, name):
             return os.pathconf(self, name)
-
 
     # --- Modifying operations on files and directories
 
@@ -860,7 +873,6 @@ class path(str):
     def renames(self, new):
         os.renames(self, new)
 
-
     # --- Create/delete operations on directories
 
     def mkdir(self, mode=0o777):
@@ -874,7 +886,6 @@ class path(str):
 
     def removedirs(self):
         os.removedirs(self)
-
 
     # --- Modifying operations on files
 
@@ -891,7 +902,6 @@ class path(str):
 
     def unlink(self):
         os.unlink(self)
-
 
     # --- Links
 
@@ -924,7 +934,6 @@ class path(str):
             else:
                 return (self.parent / p).abspath()
 
-
     # --- High-level functions from shutil
 
     copyfile = shutil.copyfile
@@ -937,7 +946,6 @@ class path(str):
         move = shutil.move
     rmtree = shutil.rmtree
 
-
     # --- Special stuff from os
 
     if hasattr(os, 'chroot'):
@@ -947,4 +955,3 @@ class path(str):
     if hasattr(os, 'startfile'):
         def startfile(self):
             os.startfile(self)
-

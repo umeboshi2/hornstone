@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 
 from chert.alchemy import TimeStampMixin
 
+
 class FeedMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -23,10 +24,11 @@ class FeedMixin(TimeStampMixin):
     @declared_attr
     def name(self):
         return Column(Unicode(100), unique=True)
-    
+
     @declared_attr
     def url(self):
         return Column(Unicode(100), unique=True)
+
 
 class FeedDataMixin(TimeStampMixin):
     @declared_attr
@@ -48,7 +50,7 @@ class FeedDataMixin(TimeStampMixin):
     @declared_attr
     def retrieved(self):
         return Column(DateTime)
-    
+
     @declared_attr
     def feed(self):
         return relationship('Feed')

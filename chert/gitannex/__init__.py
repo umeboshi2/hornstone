@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import hashlib
 import pickle as Pickle
 from io import StringIO
@@ -18,12 +19,14 @@ zero_key_old = 'SHA256-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca4959
 
 zero_key_prefix = 'SHA256E-s0--e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 
+
 def run_command(cmd):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     if proc.returncode:
         msg = "%s returned %d" % (' '.join(cmd), proc.returncode)
         raise RuntimeError(msg)
     return proc
+
 
 def get_command_output(cmd):
     proc = run_command(cmd)
@@ -37,9 +40,11 @@ def make_key(kdict):
 def make_old_default_key(size, checksum):
     return 'SHA256-s%d--%s' % (size, checksum)
 
+
 def make_default_key(size, checksum, ext):
     return 'SHA256E-s%d--%s.%s' % (size, checksum, ext)
-    
+
+
 def parse_key(keystring):
     method, size, ignore, checksum = keystring.strip().split('-')
     if not size.startswith('s'):
@@ -48,12 +53,14 @@ def parse_key(keystring):
     size = int(size[1:])
     return dict(method=method, size=size, checksum=checksum)
 
+
 def getkey(filepath):
     if filepath.startswith('/'):
         raise RuntimeError("Need relative path")
     cmd = ['git-annex', 'lookupkey', str(filepath)]
     keystring = get_command_output(cmd).strip()
     return parse_key(keystring)
+
 
 def parse_whereis_topline(topline, filepath):
     whereis_cmd_marker = 'whereis'
@@ -62,19 +69,22 @@ def parse_whereis_topline(topline, filepath):
         raise RuntimeError("Bad topline: %s" % topline)
     topline = topline[len(whereis_cmd_marker):].strip()
     if not topline.startswith(filepath):
-        raise RuntimeError("Bad topline: %s" % topline)    
+        raise RuntimeError("Bad topline: %s" % topline)
     copies = topline[len(filepath):].strip()
     return dict(copies=copies, origtop=origtop, topline=topline)
+
 
 def parse_repocopy(line):
     uuid, name = [field.strip() for field in line.split('--')]
     return uuid, name
 
+
 def make_whereis_proc(output=None):
     cmd = ['git-annex', 'whereis', '--json']
     return subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
-def make_find_proc(output=None,allrepos=True, inrepos=[]):
+
+def make_find_proc(output=None, allrepos=True, inrepos=[]):
     cmd = ['git-annex', 'find', '--json']
     if allrepos:
         cmd += ['--include', '*']
@@ -85,11 +95,13 @@ def make_find_proc(output=None,allrepos=True, inrepos=[]):
         raise RuntimeError("make --and list of repos for find")
     return subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
+
 def make_info_proc(fast=True, output=None):
     cmd = ['git-annex', 'info', '--json']
     if fast:
         cmd.append('--fast')
     return subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
 
 def annex_info(fast=True):
     proc = make_info_proc(fast=fast)
@@ -98,7 +110,6 @@ def annex_info(fast=True):
         return json.load(proc.stdout)
     else:
         raise RuntimeError("only --fast currently supported.")
-    
 
 
 def parse_whereis_command_output(output, verbose_warning=False):
@@ -120,6 +131,7 @@ def parse_whereis_command_output(output, verbose_warning=False):
         report_data[key] = filedata
     return report_data
 
+
 def make_whereis_data(make_pickle=True):
     main_filename = 'whereis.pickle'
     if os.path.isfile(main_filename):
@@ -131,7 +143,6 @@ def make_whereis_data(make_pickle=True):
     report_data = parse_whereis_command_output(stdout)
     Pickle.dump(report_data, open(main_filename, 'w'))
     return report_data
-
 
 
 # udata is global uuid repo dictionary
@@ -149,7 +160,7 @@ def update_uuids(udata, filedata):
         raise RuntimeError("Bad things happening here")
     if current_numkeys != original_numkeys:
         print("UUID's updated")
-        
+
 
 def parse_json_line(line, convert_to_unicode=False,
                     verbose_warning=True):
@@ -170,6 +181,8 @@ def parse_json_line(line, convert_to_unicode=False,
 
 # lines is iterable
 # either proc.stdout, lines in file, list, etc...
+
+
 def parse_json_output(lines, counter=None,
                       convert_to_unicode=False,
                       verbose_warning=True,
@@ -189,7 +202,7 @@ def parse_json_output(lines, counter=None,
                 outfile.close()
             break
         if counter is not None:
-            counter +=1
+            counter += 1
         data = parse_json_line(
             line,
             convert_to_unicode=convert_to_unicode,
@@ -224,6 +237,7 @@ def gitannex_init(directory, name=None):
         subprocess.check_call(cmd)
     sync_annex(directory)
 
+
 def _encryption(encryption=None):
     if encryption is None:
         encryption = 'none'
@@ -233,9 +247,9 @@ def _encryption(encryption=None):
 def _init_remote(working_directory, name, rtype, **kwargs):
     initcmd = ['git-annex', 'initremote', name, 'type=%s' % rtype]
     enablecmd = ['git-annex', 'enableremote', name]
-    args = ['%s=%s' % (k,v) for k,v in list(kwargs.items())]
+    args = ['%s=%s' % (k, v) for k, v in list(kwargs.items())]
     initcmd += args
-    #print "INITCMD", initcmd
+    # print "INITCMD", initcmd
     config_marker = '[remote "%s"]' % name
     with WorkingDirectory(working_directory) as wd:
         if config_marker not in open('.git/config').read():
@@ -243,11 +257,12 @@ def _init_remote(working_directory, name, rtype, **kwargs):
             if retcode:
                 print("INITREMOTE failed, attempt enable")
                 subprocess.call(enablecmd)
-                
+
+
 def init_dir_remote(working_directory, name, directory, encryption=None):
     kw = dict(encryption=_encryption(encryption), directory=directory)
     _init_remote(working_directory, name, 'directory', **kw)
-    
+
 
 def init_rsync_remote(working_directory, name, rsyncurl, encryption=None):
     kw = dict(encryption=_encryption(encryption),

@@ -43,8 +43,10 @@ def get_archive_entry_archive_files_query(session,
         filter = and_(filter, ArchiveEntry.entry_id == None)
     return session.query(ArchiveEntry).filter(filter)
 
+
 def get_toplevel_annex_file(session, entry):
     return entry.archive.file
+
 
 def make_archive_entry_zipfile(session, entry, annexpath=None):
     filename = entry.archive.file.name
@@ -64,6 +66,7 @@ def make_archive_entry_zipfile(session, entry, annexpath=None):
                 outfile.write(block)
     return tzfilename
 
+
 def insert_archive_entry_archive_entry(session, archive_entry, entry):
     pass
 
@@ -75,8 +78,8 @@ def insert_archive_entry_archive(session, archive_entry):
     entry_id = archive_entry.id
     for entry in tzentries:
         pass
-    
-    
+
+
 def insert_archive_entry_archive_files(session, sha256sum=True,
                                        toplevel=True, rarfiles=False):
     entries = get_archive_entry_archive_files_query(session)
@@ -84,5 +87,3 @@ def insert_archive_entry_archive_files(session, sha256sum=True,
         tzfilename = make_archive_entry_zipfile(session, entry)
         tzentries = parse_archive_file(tzfilename, sha256sum=True)
         os.remove(tzfilename)
-        
-    

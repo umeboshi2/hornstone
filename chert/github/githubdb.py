@@ -21,13 +21,13 @@ from chert.alchemy import SerialBase, TimeStampMixin
 
 
 Base = declarative_base()
-    
+
 
 ####################################
 ## Data Types                     ##
 ####################################
 
-#GitAnnexBackendType = Enum('SHA256', 'SHA256E',
+# GitAnnexBackendType = Enum('SHA256', 'SHA256E',
 #                           name='gitannex_backend_type_enum')
 
 
@@ -37,8 +37,8 @@ Base = declarative_base()
 #
 
 
-
 vccol = Unicode(200)
+
 
 class GitHubUser(TimeStampMixin):
     __tablename__ = 'ghub_users'
@@ -73,7 +73,7 @@ class GitHubUser(TimeStampMixin):
     updated_at_gh = Column(DateTime)
     pickle = Column(PickleType)
 
-    
+
 class GitHubRepo(TimeStampMixin):
     __tablename__ = 'ghub_repos'
     id = Column(BigInteger, primary_key=True)
@@ -98,9 +98,8 @@ class GitHubRepo(TimeStampMixin):
     created_at_gh = Column(DateTime)
     updated_at_gh = Column(DateTime)
     pickle = Column(PickleType)
-     
-    
-    
+
+
 ####################################
 ## Relationships                  ##
 ####################################

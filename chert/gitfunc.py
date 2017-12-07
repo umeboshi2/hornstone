@@ -5,6 +5,7 @@ import subprocess
 from unipath.path import Path as path
 from unipath import FILES, DIRS, LINKS
 
+
 def assert_git_directory(directory):
     directory = path(directory)
     assert directory.isdir()
@@ -28,12 +29,14 @@ def clone_repo(uri, dest, branch=None, quiet=True, bare=False,
         print("Clone command: %s" % ' '.join(cmd))
     subprocess.check_call(cmd)
 
+
 def fetch_all(directory, quiet=False):
     assert_git_directory(directory)
     prefix = ['git', '-C', directory]
     cmd = prefix + ['fetch', '--all']
     subprocess.check_call(cmd)
-    
+
+
 def update_repo(directory, quiet=False, all=True):
     assert_git_directory(directory)
     assert os.path.isdir(directory)
@@ -49,11 +52,12 @@ def update_repo(directory, quiet=False, all=True):
     upstream_sha = subprocess.check_output(upstream_sha_cmd).strip()
     if current_sha != upstream_sha:
         subprocess.check_call(prefix + ['merge', upstream_sha])
-    
+
+
 def update_mirrored_repo(directory):
     cmd = ['git', '-C', directory, 'remote', 'update']
     subprocess.check_call(cmd)
-    
+
 
 # FIXME - this is git-annex
 def check_remote_present(directory, name):
@@ -64,4 +68,3 @@ def check_remote_present(directory, name):
     out = subprocess.check_output(cmd)
     os.chdir(oldpwd)
     return json.loads(out)
-

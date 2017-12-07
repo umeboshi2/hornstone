@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import pickle as Pickle
 import xml.etree.ElementTree as ET
 import csv
@@ -24,6 +25,7 @@ def get_scummvm_compat_xml(url):
     else:
         print("%s exists." % filename)
 
+
 def get_one_element(element, tagname):
     elements = element.findall(tagname)
     if len(elements) != 1:
@@ -31,11 +33,13 @@ def get_one_element(element, tagname):
         raise RuntimeError(msg % (element, tagname))
     return elements[0]
 
+
 def parse_game_element(element):
     data = dict()
     for key in ['name', 'target', 'support_level', 'notes']:
         data[key] = get_one_element(element, key).text.strip()
     return data
+
 
 def parse_company_tag(element, gdict):
     name_el = get_one_element(element, 'name')
@@ -84,5 +88,3 @@ def make_target_csv(targets):
         for key in keys:
             writer.writerow(targets[key])
             print(targets[key])
-        
-    

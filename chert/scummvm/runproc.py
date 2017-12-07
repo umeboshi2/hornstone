@@ -27,4 +27,3 @@ def build_cmd(directory):
     cmd += ['-g', mdata['graphics_scaler']]
     cmd += ['-p', directory]
     return cmd
-

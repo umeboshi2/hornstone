@@ -18,7 +18,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 from chert.alchemy import SerialBase, Base
-    
+
 
 ####################################
 ## Data Types                     ##
@@ -31,23 +31,27 @@ ArchiveType = Enum('zip', 'rar', '7z',
                    name='ga_archive_file_type_enum')
 
 AnnexRepositoryTrustType = Enum('trusted', 'semitrusted', 'untrusted', 'dead',
-                                 name='gitannex_repository_trust_type')
+                                name='gitannex_repository_trust_type')
 
 ####################################
 ## Tables                         ##
 ####################################
 #
+
+
 class AnnexRepository(SerialBase):
     __tablename__ = 'ga_annex_repositories'
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200))
     uuid = Column(Unicode(40), unique=True)
     trust = Column(AnnexRepositoryTrustType, default='semitrusted')
-    
+
+
 class AnnexKey(SerialBase):
     __tablename__ = "ga_annex_keys"
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
+
 
 class AnnexFile(SerialBase):
     __tablename__ = "ga_annex_files"
@@ -63,7 +67,7 @@ class AnnexFile(SerialBase):
     # null mtime is "unknown"
     mtime = Column(DateTime)
     unicode_decode_error = Column(Boolean)
-    
+
 
 class RepoFile(SerialBase):
     __tablename__ = "ga_annex_repo_files"
@@ -71,17 +75,19 @@ class RepoFile(SerialBase):
                      primary_key=True)
     repo_id = Column(Integer, ForeignKey('ga_annex_repositories.id'),
                      primary_key=True)
-    
+
+
 class ArchiveFile(SerialBase):
     __tablename__ = "ga_archive_files"
     id = Column(Integer, ForeignKey('ga_annex_files.id'), primary_key=True)
     archive_type = Column(ArchiveType)
 
+
 class ArchiveEntryKey(SerialBase):
     __tablename__ = "ga_archive_entry_keys"
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
-    
+
 
 class ArchiveEntry(SerialBase):
     __tablename__ = "ga_archive_entries"
@@ -108,7 +114,7 @@ class ArchiveEntry(SerialBase):
     extract_version = Column(Integer)
     header_offset = Column(BigInteger)
     orig_filename = Column(UnicodeText)
-    
+
     # in zip files
     create_system = Column(Integer)
     create_version = Column(Integer)
@@ -117,7 +123,7 @@ class ArchiveEntry(SerialBase):
     flag_bits = Column(Integer)
     internal_attr = Column(Integer)
     reserved = Column(Integer)
-    
+
     # in rar files
     add_size = Column(BigInteger)
     arctime = Column(DateTime)
@@ -136,9 +142,8 @@ class ArchiveEntry(SerialBase):
     salt = Column(UnicodeText)
     type = Column(Integer)
     volume_file = Column(UnicodeText)
-    
 
-    
+
 ####################################
 ## Relationships                  ##
 ####################################

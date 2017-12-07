@@ -63,7 +63,7 @@ class BaseModel(object):
         for key in self._get_keys():
             data[key] = getattr(self, key)
         return data
-    
+
 
 class SerialBase(BaseModel):
     def serialize(self):

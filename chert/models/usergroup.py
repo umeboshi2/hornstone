@@ -12,6 +12,7 @@ from sqlalchemy.orm import relationship
 from ..alchemy import TimeStampMixin
 from .base import BaseIdMixin, BaseShortNameIdMixin
 
+
 class UserMixin(BaseIdMixin):
     @declared_attr
     def __tablename__(self):
@@ -40,7 +41,7 @@ class UserMixin(BaseIdMixin):
     @declared_attr
     def settings(self):
         return Column(PickleType)
-    
+
     @property
     def user_name(self):
         return super(TimeStampMixin, self).username
@@ -48,7 +49,7 @@ class UserMixin(BaseIdMixin):
     def get_groups(self):
         return [g.name for g in self.groups]
 
-    
+
 class UserConfigMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -73,7 +74,8 @@ class UserConfigMixin(TimeStampMixin):
         cfile.seek(0)
         text = cfile.read()
         self.text = text
-    
+
+
 class GroupMixin(BaseShortNameIdMixin):
     @declared_attr
     def __tablename__(self):
@@ -87,8 +89,8 @@ class GroupMixin(BaseShortNameIdMixin):
     def users(self):
         return relationship('User', secondary='group_user',
                             backref='groups')
-    
-    
+
+
 class UserGroupMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -101,7 +103,7 @@ class UserGroupMixin(TimeStampMixin):
                                  onupdate='CASCADE',
                                  ondelete='CASCADE'),
                       primary_key=True)
-    
+
     @declared_attr
     def user_id(self):
         return Column(Integer,

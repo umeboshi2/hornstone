@@ -44,6 +44,7 @@ from ..alchemy import TimeStampMixin
 
 RoleType = Enum('admin', 'host', 'user', 'guest', name='roletype')
 
+
 class AddressMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -56,7 +57,7 @@ class AddressMixin(TimeStampMixin):
     @declared_attr
     def street(self):
         return Column(Unicode(150))
-    
+
     @declared_attr
     def street2(self):
         return Column(Unicode(150))
@@ -72,7 +73,8 @@ class AddressMixin(TimeStampMixin):
     @declared_attr
     def zip(self):
         return Column(Unicode(10))
-    
+
+
 class ContactMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -85,23 +87,24 @@ class ContactMixin(TimeStampMixin):
     @declared_attr
     def firstname(self):
         return Column(Unicode(50))
-    
+
     @declared_attr
     def lastname(self):
         return Column(Unicode(50))
-    
+
     @declared_attr
     def email(self):
         return Column(Unicode(150))
-    
+
     @declared_attr
     def phone(self):
         return Column(Unicode(20))
-    
+
     @declared_attr
     def users(self):
         return relationship('User')
-    
+
+
 class AudienceMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -114,10 +117,11 @@ class AudienceMixin(TimeStampMixin):
     @declared_attr
     def location(self):
         return Column(Unicode(50))
-    
+
     def __init__(self, location=None):
         self.location = location
-        
+
+
 class VenueMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -130,33 +134,33 @@ class VenueMixin(TimeStampMixin):
     @declared_attr
     def name(self):
         return Column(Unicode(50))
-    
+
     @declared_attr
     def audience_id(self):
         return Column(Integer, ForeignKey('audiences.id'))
-    
+
     @declared_attr
     def address_id(self):
         return Column(Integer, ForeignKey('addresses.id'))
-    
+
     @declared_attr
     def user_id(self):
         return Column(Integer, ForeignKey('users.id'))
-    
-    
+
     @declared_attr
     def name(self):
         return Column(IntegerUnicode(50))
-    
+
     @declared_attr
     def description(self):
         return Column(UnicodeText)
-    
+
     def __init__(self, user_id, name=None, audience_id=None):
         self.user_id = user_id
         self.name = name
         self.audience_id = audience_id
-    
+
+
 class EventTypeMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -169,12 +173,12 @@ class EventTypeMixin(TimeStampMixin):
     @declared_attr
     def name(self):
         return Column(Unicode(50), unique=True)
-    
+
     def __init__(self, name=None):
         self.name = name
-    
 
-# FIXME 
+
+# FIXME
 class EventTypeColorMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -187,11 +191,11 @@ class EventTypeColorMixin(TimeStampMixin):
     @declared_attr
     def color(self):
         return Column(Unicode(50))
-    
+
     def __init__(self, color):
         self.color = color
-        
-    
+
+
 class EventMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
@@ -230,23 +234,23 @@ class EventMixin(TimeStampMixin):
     @declared_attr
     def all_day(self):
         return Column(Boolean('all_day_event'), default=False)
-    
+
     @declared_attr
     def title(self):
         return Column(Unicode(255))
-    
+
     @declared_attr
     def description(self):
         return Column(UnicodeText)
-    
+
     @declared_attr
     def originator(self):
         return Column(Integer, ForeignKey('users.id'))
-    
+
     @declared_attr
     def event_type(self):
         return Column(Integer, ForeignKey('event_types.id'))
-    
+
     @declared_attr
     def venue_id(self):
         return Column(Integer, ForeignKey('venues.id'))
@@ -255,19 +259,20 @@ class EventMixin(TimeStampMixin):
     def venue(self):
         return relationship('Venue', secondary='event_venues',
                             backref='events')
-    
+
     def __init__(self, originator):
         self.originator = originator
+
 
 class EventVenueMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
         return 'event_venues'
-    
+
     @declared_attr
     def event_id(self):
         return Column(Integer, ForeignKey('events.id'), primary_key=True)
-    
+
     @declared_attr
     def venue_id(self):
         return Column(Integer, ForeignKey('venues.id'), primary_key=True)
@@ -275,13 +280,13 @@ class EventVenueMixin(TimeStampMixin):
     def __init__(self, event_id, venue_id):
         self.event_id = event_id
         self.venue_id = venue_id
-        
+
 
 class VenueInfoMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
         return 'venue_info'
-    
+
     @declared_attr
     def id(self):
         return Column(Integer, ForeignKey('venues.id'), primary_key=True)
@@ -293,42 +298,45 @@ class VenueInfoMixin(TimeStampMixin):
     def __init__(self, id, info):
         self.id = id
         self.info = info
-        
+
+
 class FestivalMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
         return 'festivals'
-    
+
     @declared_attr
     def id(self):
         return Column(Integer, primary_key=True)
+
 
 class FestivalEventMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
         return 'festival_events'
-    
+
     @declared_attr
     def festival_id(self):
         return Column(Integer, ForeignKey('festival.id'), primary_key=True)
-    
+
     @declared_attr
     def event_id(self):
         return Column(Integer, ForeignKey('events.id'), primary_key=True)
-    
+
+
 class UserInfoMixin(TimeStampMixin):
     @declared_attr
     def __tablename__(self):
         return 'commix_user_info'
-    
+
     @declared_attr
     def id(self):
         return Column(Integer, ForeignKey('users.id'), primary_key=True)
-    
+
     @declared_attr
     def contact_id(self):
         return Column(Integer, ForeignKey('contacts.id'))
-    
+
     @declared_attr
     def role(self):
         return Column(RoleType)
@@ -340,4 +348,3 @@ class UserInfoMixin(TimeStampMixin):
     @declared_attr
     def contact(self):
         return relationship('Contact')
-    

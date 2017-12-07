@@ -26,11 +26,13 @@ from chert.gitannex.annexdb.schema import RepoFile
 
 dt_isoformat = '%Y-%m-%dT%H:%M:%S'
 
+
 def make_keyid_lookup_dict(session):
     data = dict()
     for dbk in session.query(AnnexKey).all():
         data[dbk.name] = dbk.id
     return data
+
 
 def count_annex_key_func():
     return func.count(AnnexFile.key_id).label('key_count')
@@ -43,7 +45,6 @@ def make_dupe_count_query(session):
     cq = session.query(AnnexFile.key_id, cf).group_by(AnnexFile.key_id)
     cq = cq.subquery()
     return session.query(cq).filter(cq.c.key_count > 1)
-
 
 
 def make_dupefile_query(session):
@@ -91,12 +92,16 @@ def compare_two_dirs(session, dir_one, dir_two):
 # necessarily under the parent, but one
 # of the paths in the set of duplicates
 # will be under the parent.
+
+
 def dupekeys_under_parent(session, parent_directory):
     parent_directory = remove_trailing_slash(parent_directory)
     dfq = make_dupefile_query(session)
-    psq = dfq.filter(AnnexFile.name.like('%s/%%' % parent_directory)).subquery()
+    psq = dfq.filter(AnnexFile.name.like('%s/%%' %
+                                         parent_directory)).subquery()
     key_query = session.query(distinct(psq.c.key_id))
     return key_query
+
 
 def dupefiles_under_parent(session, parent_directory):
     keys = dupekeys_under_parent(session, parent_directory)
@@ -106,6 +111,7 @@ def dupefiles_under_parent(session, parent_directory):
 
 def zero_bytesize_query(session):
     return session.query(AnnexFile).filter_by(bytesize=0)
+
 
 def largest_files_query(session):
     return session.query(AnnexFile).order_by(desc(AnnexFile.bytesize))
@@ -136,6 +142,7 @@ def get_find_data(session,
             break
         count += 1
 
+
 def make_find_output():
     ignore, filename = tempfile.mkstemp(prefix='gitannex-find-output-')
     get_find_data('ignore',
@@ -160,6 +167,7 @@ def make_whereis_output():
         count += 1
     return filename
 
+
 def parse_whereis_line(session, line, repoids, convert_to_unicode=True,
                        verbose_warning=True):
     try:
@@ -179,7 +187,7 @@ def parse_whereis_line(session, line, repoids, convert_to_unicode=True,
         w.repo_id = repoids[uuid]
         session.add(w)
 
-    
+
 def parse_whereis_cmd(session, repoids, convert_to_unicode=True,
                       verbose_warning=True):
     proc = gitannex.make_whereis_proc()
@@ -199,7 +207,7 @@ def parse_whereis_cmd(session, repoids, convert_to_unicode=True,
     if proc.returncode:
         raise RuntimeError("command returned %d" % proc.returncode)
     session.commit()
-    
+
 
 def initialize_annex_keys(session, find_output_filename):
     filename = find_output_filename
@@ -225,7 +233,6 @@ def initialize_annex_keys(session, find_output_filename):
     print("successful commit", datetime.now())
 
 
-
 def _add_annexfile_attributes_common(dbobj, data):
     dbobj.name = data['file']
     for att in ['backend', 'bytesize', 'humansize',
@@ -234,7 +241,8 @@ def _add_annexfile_attributes_common(dbobj, data):
         setattr(dbobj, att, data[att])
         if data['mtime'] != 'unknown':
             raise RuntimeError("Parse time?")
-        
+
+
 def _add_annexfile_attributes(keylookup, dbobj, data):
     key = data['key']
     try:
@@ -243,11 +251,11 @@ def _add_annexfile_attributes(keylookup, dbobj, data):
         raise KeyError("Unknown key %s" % data)
     _add_annexfile_attributes_common(dbobj, data)
 
-        
+
 def _add_new_annexfile_attributes(key_id, dbobj, data):
     dbobj.key_id = key_id
     _add_annexfile_attributes_common(dbobj, data)
-    
+
 
 def add_file_to_database(session, keylookup, filedata,
                          commit=False):
@@ -283,7 +291,7 @@ def add_files(session, keylookup, find_output_filename):
         session.commit()
         print(datetime.now())
 
-        
+
 def add_new_file_to_database(session, filedata,
                              commit=False):
     key = filedata['key']
@@ -317,13 +325,14 @@ def add_new_files(session, keylookup, newfiles):
     session.commit()
     print(datetime.now())
 
+
 def populate_whereis(session, repoids):
     print("populating whereis info")
     parse_whereis_cmd(session, repoids, convert_to_unicode=True,
                       verbose_warning=True)
     print("whereis info populated")
-    
-    
+
+
 def populate_database(session):
     now = datetime.now()
     print("Creating git-annex find output")
@@ -339,7 +348,7 @@ def populate_database(session):
     add_files(session, kl, find_output_filename)
     session.commit()
     os.remove(find_output_filename)
-    #populate_whereis(session)
+    # populate_whereis(session)
 
 
 ################################
@@ -353,13 +362,14 @@ def _various_queries():
     oq = fq.order_by(AnnexKey.id)
     acf = aliased(func.count(AnnexFile.key_id))
     cf = func.count(AnnexFile.key_id).label('key_count')
-    
+
     cq = s.query(AnnexFile.key_id, cf).group_by(AnnexFile.key_id).subquery()
     #q = s.query(AnnexFile, cq).filter(AnnexFile.key_id == cq.key_id)
     #q = s.query(AnnexFile, cq).filter(cq.count > 3)
     dq = s.query(cq).filter(cq.c.key_count > 1)
-    
+
     #q = make_dupe_count_query(s)
     sq = make_dupe_count_query(s).subquery()
     #q = s.query(sq, AnnexFile).filter(sq.c.key_id == AnnexFile.key_id).order_by(AnnexFile.key_id)
-    q = s.query(sq, AnnexKey).filter(sq.c.key_id == AnnexKey.id).order_by(AnnexKey.id)
+    q = s.query(sq, AnnexKey).filter(
+        sq.c.key_id == AnnexKey.id).order_by(AnnexKey.id)

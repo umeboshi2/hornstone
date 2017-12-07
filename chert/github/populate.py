@@ -21,6 +21,7 @@ from chert.alchemy import SerialBase, TimeStampMixin
 
 from .githubdb import GitHubUser, GitHubRepo
 
+
 class NoNamedUserError(Exception):
     pass
 
@@ -53,7 +54,7 @@ user_attributes = [
     'public_gists',
     'followers',
     'following',
-    ]
+]
 
 
 repo_attributes = [
@@ -88,21 +89,24 @@ def _make_dbobject(robj, dbclass, attributes):
     dbobj.pickle = robj
     return dbobj
 
-    
-    
+
 def make_dbuser(user):
     return _make_dbobject(user, GitHubUser, user_attributes)
+
 
 def make_dbrepo(repo):
     dbrepo = _make_dbobject(repo, GitHubRepo, repo_attributes)
     dbrepo.owner_id = repo.owner.id
     return dbrepo
 
+
 def add_dbuser(session, dbuser):
     session.add(dbuser)
     return session.merge(dbuser)
 
 # if repo_owner is not None, it is repo.owner from github
+
+
 def add_dbrepo(session, dbrepo, repo_owner=None, verbose=False):
     owner = session.query(GitHubUser).get(dbrepo.owner_id)
     if owner is None:
@@ -127,6 +131,7 @@ def _import_repos(session, repolist, verbose=False):
             dbrepo = add_dbrepo(session, dbrepo, repo_owner=repo.owner,
                                 verbose=verbose)
 
+
 def import_basic_data(session, ghub, commit=False, verbose=False):
     user = ghub.get_user()
     user_id = user.id
@@ -144,4 +149,3 @@ def import_basic_data(session, ghub, commit=False, verbose=False):
         if verbose:
             print("Committing Data...")
         session.commit()
-        

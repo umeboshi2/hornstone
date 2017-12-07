@@ -21,23 +21,24 @@ from chert.alchemy import SerialBase
 Base = declarative_base()
 
 
-
 ####################################
 ## Data Types                     ##
 ####################################
 
 HubbyFileType = Enum('agenda', 'minutes', 'attachment',
-                name='hubbyfile_type_enum')
+                     name='hubbyfile_type_enum')
 
 ####################################
 ## Tables                         ##
 ####################################
 
+
 class ScummVMCompany(Base, SerialBase):
     __tablename__ = 'scummvm_companies'
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(200), unique=True)
-    
+
+
 class ScummVMGame(Base, SerialBase):
     __tablename__ = 'scummvm_games'
     id = Column(Unicode(50), primary_key=True)
@@ -52,4 +53,3 @@ class ScummVMGame(Base, SerialBase):
 ####################################
 
 ScummVMGame.company = relationship(ScummVMCompany)
-
