@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `chert` package."""
+"""Tests for `hornstone` package."""
 
 import pytest
 
-
-import chert
+import hornstone
 
 
 @pytest.fixture
