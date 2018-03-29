@@ -27,7 +27,6 @@ requirements = [
     'gitpython',
     'passlib',
 ]
-
 setup_requirements = [
     'pytest-runner',
     # TODO(umeboshi2): put setup requirements (distutils extensions, etc.) here
@@ -37,6 +36,7 @@ test_requirements = [
     'pytest',
     # TODO: put package test requirements here
 ]
+
 
 setup(
     name='hornstone',
