@@ -47,7 +47,7 @@ setup(
     author_email='joseph.rawson.works@gmail.com',
     url='https://github.com/umeboshi2/hornstone',
     license='Public Domain',
-    packages=find_packages(include=['hornstone']),
+    packages=find_packages(include=['hornstone', 'hornstone.*']),
     include_package_data=True,
     install_requires=requirements,
     zip_safe=False,
