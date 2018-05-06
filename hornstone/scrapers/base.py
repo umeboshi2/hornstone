@@ -1,4 +1,3 @@
-import os
 import pickle
 import json
 import uuid
@@ -8,7 +7,8 @@ from datetime import date, datetime
 import robobrowser
 from bs4 import BeautifulSoup
 
-#https://stackoverflow.com/a/22238613
+
+# https://stackoverflow.com/a/22238613
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
 
@@ -18,21 +18,27 @@ def json_serial(obj):
         return obj.decode()
     raise TypeError("Type %s not serializable" % type(obj))
 
+
 def make_uuid_from_url(url):
     return uuid.uuid5(uuid.NAMESPACE_URL, url)
+
 
 def load_json(filename):
     return json.load(open(filename, 'rb'))
 
+
 def load_pickle(filename):
     return pickle.load(open(filename, 'rb'), encoding='utf8')
+
 
 def dump_json(data, fileobj):
     json.dump(data, fileobj)
 
+
 def dump_pickle(data, fileobj):
     pickle.dump(data, fileobj)
-    
+
+
 LOADERS = dict(json=load_json, pickle=load_pickle)
 MODULES = dict(json=json, pickle=pickle)
 
@@ -48,7 +54,7 @@ class BaseCollector(object):
 
     def _make_soup(self, content):
         return BeautifulSoup(content, 'lxml')
-    
+
     def retrieve_page(self, url=None):
         if url is None:
             if self.url is None:
@@ -57,7 +63,7 @@ class BaseCollector(object):
         else:
             self.url = url
         self.response = self.browser.open(url)
-        #self.info = self.browser.response.headers
+        # self.info = self.browser.response.headers
         self.info = dict()
         for key in self.browser.response.headers:
             self.info[key.lower()] = self.browser.response.headers[key]
@@ -79,7 +85,7 @@ class CacheCollector(BaseCollector):
         if not self.cachedir.exists():
             self.cachedir.mkdir(parents=True)
         self.format = format
-        
+
     def filename(self, url):
         filename = '{}.{}'.format(make_uuid_from_url(url), self.format)
         return self.cachedir / filename
@@ -89,7 +95,7 @@ class CacheCollector(BaseCollector):
 
     def _load_pickle(self, filename):
         return pickle.load(filename.open('rb'))
-    
+
     def get_from_cache(self, url):
         filename = self.filename(url)
         if filename.exists():
@@ -109,7 +115,7 @@ class CacheCollector(BaseCollector):
     def _dump_pickle(self, data, filename):
         with filename.open('wb') as outfile:
             pickle.dump(data, outfile)
-            
+
     def save_to_cache(self, url):
         self.retrieve_page(url)
         data = dict(info=self.info, content=self.content, url=self.url)
