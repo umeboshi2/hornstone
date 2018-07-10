@@ -7,6 +7,6 @@ pytest==3.5.1
 pytest-runner==4.2
 pytz==2018.4
 PyYAML==3.12
-tox==3.0.0
+tox==3.1.1
 watchdog==0.8.3
 wheel>=0.29.0
