@@ -2,21 +2,9 @@ import pickle
 import json
 import uuid
 from pathlib import Path
-from datetime import date, datetime
 
 import robobrowser
 from bs4 import BeautifulSoup
-
-
-# https://stackoverflow.com/a/22238613
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    if isinstance(obj, bytes):
-        return obj.decode()
-    raise TypeError("Type %s not serializable" % type(obj))
 
 
 def make_uuid_from_url(url):
