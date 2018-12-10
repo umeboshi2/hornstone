@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 
 # https://stackoverflow.com/a/22238613
 def json_serial(obj):
@@ -8,4 +10,3 @@ def json_serial(obj):
     if isinstance(obj, bytes):
         return obj.decode()
     raise TypeError("Type %s not serializable" % type(obj))
-
