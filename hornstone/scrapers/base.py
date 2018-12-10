@@ -6,6 +6,8 @@ from pathlib import Path
 import robobrowser
 from bs4 import BeautifulSoup
 
+from ..util import json_serial
+
 
 def make_uuid_from_url(url):
     return uuid.uuid5(uuid.NAMESPACE_URL, url)
