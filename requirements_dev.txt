@@ -9,4 +9,4 @@ pytz==2018.7
 PyYAML==3.13
 tox==3.5.3
 watchdog==0.9.0
-wheel==0.31.1
+wheel==0.32.3
