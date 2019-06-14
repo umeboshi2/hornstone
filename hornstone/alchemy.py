@@ -1,3 +1,7 @@
+import io
+import lzma
+import json
+
 import warnings
 from datetime import datetime, date
 
@@ -15,6 +19,7 @@ from sqlalchemy_utils import Timestamp
 # http://stackoverflow.com/questions/4617291/how-do-i-get-a-raw-compiled-sql-query-from-a-sqlalchemy-expression
 from sqlalchemy.sql import compiler
 from psycopg2.extensions import adapt as sqlescape
+import transaction
 
 
 def compile_query(query):
@@ -73,7 +78,7 @@ class SerialBase(BaseModel):
             name = column.name
             try:
                 pytype = column.type.python_type
-            except NotImplementedError as error:
+            except NotImplementedError:
                 if type(column.type) is PickleType:
                     value = getattr(self, name)
                     if type(value) not in [dict, list]:
@@ -122,3 +127,23 @@ def make_sqlite_session(filename, create_all=False, baseclass=None):
 def make_postgresql_session(dburl, create_all=False, baseclass=None):
     return _make_db_session(dburl, create_all=create_all,
                             baseclass=baseclass)
+
+
+# This can use a lot of memory.  This is only useful for
+# smaller datasets.
+def export_models(session, models):
+    data = dict()
+    output = io.BytesIO()
+    with transaction.manager:
+        with lzma.LZMAFile(output, 'w') as zfile:
+            for model in models:
+                q = session.query(model)
+                name = model.__name__
+                print("Dumping {}".format(name))
+                mlist = [m.serialize() for m in q]
+                data[name] = mlist
+                print("Exported {}".format(name))
+            content = json.dumps(data).encode()
+            zfile.write(content)
+    del data
+    return output.getvalue()
