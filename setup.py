@@ -43,7 +43,7 @@ setup(
     name='hornstone',
     version='0.1.10',
     description="A bunch of rocks",
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     author="Joseph Rawson",
     author_email='joseph.rawson.works@gmail.com',
     url='https://github.com/umeboshi2/hornstone',
