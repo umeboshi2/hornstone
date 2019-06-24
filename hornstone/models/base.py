@@ -1,7 +1,14 @@
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy_utils import UUIDType
 
 from ..alchemy import TimeStampMixin
+
+
+class BaseUUIDMixin(TimeStampMixin):
+    @declared_attr
+    def id(self):
+        return sa.Column(UUIDType, primary_key=True, autoincrement=True)
 
 
 class BaseIdMixin(TimeStampMixin):
