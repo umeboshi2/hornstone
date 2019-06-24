@@ -41,7 +41,7 @@ test_requirements = [
 
 setup(
     name='hornstone',
-    version='0.1.10',
+    version='0.1.11',
     description="A bunch of rocks",
     long_description=readme,
     author="Joseph Rawson",
