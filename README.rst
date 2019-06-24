@@ -1,6 +1,6 @@
-=====
+===========
 hornstone
-=====
+===========
 
 
 .. image:: https://travis-ci.org/umeboshi2/hornstone.svg?branch=master
