@@ -77,6 +77,9 @@ class SimpleUserTest(BaseUserGroupTest):
         self.assertEqual(user.username, 'admin')
 
     def test_user_id(self):
+        from uuid import UUID
         User = self.models['User']
         user = self.session.query(User).filter_by(username='admin').first()
-        self.assertEqual(user.id, 1)
+        result = type(user.id)
+        expected = UUID
+        self.assertEqual(result, expected)
