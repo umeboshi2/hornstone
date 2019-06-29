@@ -7,12 +7,15 @@ from sqlalchemy import Unicode, UnicodeText
 from sqlalchemy import ForeignKey, PickleType
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
+from sqlalchemy_utils import UUIDType
 
 from ..alchemy import TimeStampMixin
 from .base import BaseIdMixin, BaseShortNameIdMixin
+from .base import BaseUUIDMixin
+from .base import BaseShortNameUUIDMixin
 
 
-class UserMixin(BaseIdMixin):
+class UserMixin(BaseUUIDMixin):
     @declared_attr
     def __tablename__(self):
         return 'users'
@@ -56,7 +59,7 @@ class UserConfigMixin(TimeStampMixin):
 
     @declared_attr
     def id(self):
-        return Column(Integer, ForeignKey('users.id'), primary_key=True)
+        return Column(UUIDType, ForeignKey('users.id'), primary_key=True)
 
     @declared_attr
     def text(self):
@@ -75,7 +78,7 @@ class UserConfigMixin(TimeStampMixin):
         self.text = text
 
 
-class GroupMixin(BaseShortNameIdMixin):
+class GroupMixin(BaseShortNameUUIDMixin):
     @declared_attr
     def __tablename__(self):
         return 'groups'
@@ -97,7 +100,7 @@ class UserGroupMixin(TimeStampMixin):
 
     @declared_attr
     def group_id(self):
-        return Column(Integer,
+        return Column(UUIDType,
                       ForeignKey('groups.id',
                                  onupdate='CASCADE',
                                  ondelete='CASCADE'),
@@ -105,7 +108,7 @@ class UserGroupMixin(TimeStampMixin):
 
     @declared_attr
     def user_id(self):
-        return Column(Integer,
+        return Column(UUIDType,
                       ForeignKey('users.id',
                                  onupdate='CASCADE',
                                  ondelete='CASCADE'),
