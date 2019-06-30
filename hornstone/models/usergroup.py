@@ -2,7 +2,7 @@ from configparser import ConfigParser
 from io import StringIO
 
 from sqlalchemy import Column
-from sqlalchemy import Integer, Boolean
+from sqlalchemy import Boolean
 from sqlalchemy import Unicode, UnicodeText
 from sqlalchemy import ForeignKey, PickleType
 from sqlalchemy.ext.declarative import declared_attr
@@ -10,7 +10,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 
 from ..alchemy import TimeStampMixin
-from .base import BaseIdMixin, BaseShortNameIdMixin
 from .base import BaseUUIDMixin
 from .base import BaseShortNameUUIDMixin
 
