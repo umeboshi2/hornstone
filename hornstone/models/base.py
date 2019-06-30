@@ -10,7 +10,7 @@ class BaseUUIDMixin(TimeStampMixin):
     @declared_attr
     def id(self):
         return sa.Column(UUIDType, primary_key=True,
-                         default=uuid.uuid4())
+                         default=uuid.uuid4)
 
 
 class BaseIdMixin(TimeStampMixin):
