@@ -1,6 +1,7 @@
 import io
 import lzma
 import json
+from uuid import UUID
 
 import warnings
 from datetime import datetime, date
@@ -92,6 +93,9 @@ class SerialBase(BaseModel):
             if pytype is datetime or pytype is date:
                 if value is not None:
                     value = value.isoformat()
+            elif pytype is UUID:
+                if value is not None:
+                    value = str(value)
             data[name] = value
         return data
 
