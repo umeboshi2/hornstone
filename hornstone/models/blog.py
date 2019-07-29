@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 
 from ..alchemy import TimeStampMixin
-from .base import BaseIdMixin, BaseNameIdMixin
 from .base import BaseUUIDMixin, BaseNameUUIDMixin
 # from .base import UserOwnedMixin
 
