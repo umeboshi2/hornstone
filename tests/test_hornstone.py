@@ -6,10 +6,8 @@
 import io
 import pytest
 
-import hornstone
 from hornstone.base import get_sha256sum, get_sha256sum_string
 from hornstone.base import trailing_slash, remove_trailing_slash
-
 
 
 @pytest.fixture
@@ -42,10 +40,12 @@ def test_hash_hello_string():
     fhash = get_sha256sum_string(hello)
     assert fhash == hello_hash
 
+
 def test_trailing_slash():
     u = 'hello/'
     res = trailing_slash(u)
     assert res == u
+
 
 def test_trailing_slash_needed():
     u = 'hello'
@@ -64,10 +64,8 @@ def test_rm_slash2():
     res = remove_trailing_slash(u)
     assert res == "end"
 
+
 def test_rm_slash3():
     u = "end/////"
     res = remove_trailing_slash(u)
     assert res == "end"
-
-
-
