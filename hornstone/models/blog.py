@@ -1,13 +1,15 @@
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
+from sqlalchemy_utils import UUIDType
 
 from ..alchemy import TimeStampMixin
 from .base import BaseIdMixin, BaseNameIdMixin
+from .base import BaseUUIDMixin, BaseNameUUIDMixin
 # from .base import UserOwnedMixin
 
 
-class PersonMixin(BaseNameIdMixin):
+class PersonMixin(BaseNameUUIDMixin):
     @declared_attr
     def __tablename__(self):
         return 'people'
@@ -25,7 +27,7 @@ class PersonMixin(BaseNameIdMixin):
         return relationship('Comment', backref='author')
 
 
-class BlogMixin(BaseIdMixin):
+class BlogMixin(BaseUUIDMixin):
     @declared_attr
     def __tablename__(self):
         return 'blogs'
@@ -36,14 +38,14 @@ class BlogMixin(BaseIdMixin):
 
     @declared_attr
     def owner_id(self):
-        return sa.Column(sa.Integer, sa.ForeignKey('people.id'))
+        return sa.Column(UUIDType, sa.ForeignKey('people.id'))
 
     @declared_attr
     def posts(self):
         return relationship('Post', backref='blog')
 
 
-class PostMixin(BaseIdMixin):
+class PostMixin(BaseUUIDMixin):
     @declared_attr
     def __tablename__(self):
         return 'posts'
@@ -63,11 +65,11 @@ class PostMixin(BaseIdMixin):
 
     @declared_attr
     def blog_id(self):
-        return sa.Column(sa.Integer, sa.ForeignKey('blogs.id'))
+        return sa.Column(UUIDType, sa.ForeignKey('blogs.id'))
 
     @declared_attr
     def author_id(self):
-        return sa.Column(sa.Integer,
+        return sa.Column(UUIDType,
                          sa.ForeignKey('people.id'), nullable=False)
 
     @declared_attr
@@ -82,7 +84,7 @@ class CommentMixin(TimeStampMixin):
 
     @declared_attr
     def comments_id(self):
-        return sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+        return sa.Column(UUIDType, primary_key=True)
 
     @declared_attr
     def content(self):
@@ -90,12 +92,12 @@ class CommentMixin(TimeStampMixin):
 
     @declared_attr
     def author_id(self):
-        return sa.Column(sa.Integer,
+        return sa.Column(UUIDType,
                          sa.ForeignKey('people.id'), nullable=False)
 
     @declared_attr
     def post_id(self):
-        return sa.Column(sa.Integer, sa.ForeignKey('posts.id'))
+        return sa.Column(UUIDType, sa.ForeignKey('posts.id'))
 
     @declared_attr
     def type(self):

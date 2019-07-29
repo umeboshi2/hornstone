@@ -49,3 +49,9 @@ class BaseNameIdMixin(BaseIdMixin):
     @declared_attr
     def name(self):
         return sa.Column(sa.Unicode, unique=True)
+
+
+class BaseNameUUIDMixin(BaseUUIDMixin):
+    @declared_attr
+    def name(self):
+        return sa.Column(sa.Unicode, unique=True)
