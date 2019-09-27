@@ -33,6 +33,14 @@ class ChunksTest(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
+class GetbooleanTest(unittest.TestCase):
+    def test_getboolean(self):
+        from .util import getboolean
+        result = getboolean('false')
+        expected = False
+        self.assertEqual(result, expected)
+
+
 class BaseAlchemyTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
