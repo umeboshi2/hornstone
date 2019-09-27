@@ -70,6 +70,9 @@ class BaseModel(object):
             data[key] = getattr(self, key)
         return data
 
+    def get_table_column_names(self):
+        return self._get_keys()
+
 
 class SerialBase(BaseModel):
     def serialize(self):
