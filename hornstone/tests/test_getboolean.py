@@ -2,64 +2,42 @@ import unittest
 
 
 class GetbooleanTest(unittest.TestCase):
-    def test_false_lower(self):
+    def _test_methods(self, value, expected):
         from ..util import getboolean
-        result = getboolean('false')
-        expected = False
-        self.assertEqual(result, expected)
+        methods = ['lower', 'title', 'upper']
+        for method in methods:
+            test_value = getattr(value, method)()
+            params = dict(test_value=test_value,
+                          method=method,
+                          value=value,
+                          expected=expected)
+            msg = "value is {}, expected result {}".format(value, expected)
+            with self.subTest(msg, **params):
+                result = getboolean(test_value)
+                self.assertEqual(result, expected)
 
-    def test_false_title(self):
+    def test_truthness(self):
+        values = ['true', 'yes', '1', 'on']
+        for value in values:
+            self._test_methods(value, True)
+
+    def test_falseness(self):
+        values = ['false', 'no', '0', 'off']
+        for value in values:
+            self._test_methods(value, False)
+
+    def test_bad_values(self):
         from ..util import getboolean
-        result = getboolean('False')
-        expected = False
-        self.assertEqual(result, expected)
+        values = ['f', 't', 'y', 'n', '2']
+        for value in values:
+            msg = "value is {}".format(value)
+            with self.subTest(msg=msg, value=value):
+                self.assertRaises(ValueError, getboolean, value)
 
-    def test_false_upper(self):
+    def test_bad_types(self):
         from ..util import getboolean
-        result = getboolean('FALSE')
-        expected = False
-        self.assertEqual(result, expected)
-
-    def test_yes_lower(self):
-        from ..util import getboolean
-        result = getboolean('yes')
-        expected = True
-        self.assertEqual(result, expected)
-
-    def test_yes_title(self):
-        from ..util import getboolean
-        result = getboolean('Yes')
-        expected = True
-        self.assertEqual(result, expected)
-
-    def test_yes_upper(self):
-        from ..util import getboolean
-        result = getboolean('YES')
-        expected = True
-        self.assertEqual(result, expected)
-
-    def test_no_lower(self):
-        from ..util import getboolean
-        result = getboolean('no')
-        expected = False
-        self.assertEqual(result, expected)
-
-    def test_no_title(self):
-        from ..util import getboolean
-        result = getboolean('No')
-        expected = False
-        self.assertEqual(result, expected)
-
-    def test_no_upper(self):
-        from ..util import getboolean
-        result = getboolean('NO')
-        expected = False
-        self.assertEqual(result, expected)
-
-    def test_getboolean(self):
-        from ..util import getboolean
-        result = getboolean('no')
-        expected = False
-        self.assertEqual(result, expected)
-
-
+        values = [0, 1, 2, 0.0, True, False]
+        for value in values:
+            msg = "value is {}".format(value)
+            with self.subTest(msg=msg, value=value):
+                self.assertRaises(AttributeError, getboolean, value)
