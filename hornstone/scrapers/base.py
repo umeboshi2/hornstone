@@ -3,6 +3,9 @@ import json
 import uuid
 from pathlib import Path
 
+import werkzeug
+werkzeug.cached_property = werkzeug.utils.cached_property
+
 import robobrowser
 from bs4 import BeautifulSoup
 
