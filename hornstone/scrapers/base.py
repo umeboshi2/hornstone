@@ -2,14 +2,14 @@ import pickle
 import json
 import uuid
 from pathlib import Path
+from bs4 import BeautifulSoup
+from ..util import json_serial
 
+# https://github.com/jmcarp/robobrowser/issues/96
+# workaround issue with a monkeypatch
 import werkzeug
 werkzeug.cached_property = werkzeug.utils.cached_property
-
-import robobrowser
-from bs4 import BeautifulSoup
-
-from ..util import json_serial
+import robobrowser  # noqa:E402
 
 
 def make_uuid_from_url(url):
