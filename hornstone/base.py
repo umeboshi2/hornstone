@@ -38,11 +38,11 @@ class WorkingDirectory(object):
         self._cwd = self._pwd
 
 
-def chunks(l, n):
-    """ Yield successive n-sized chunks from l.
+def chunks(ls, n):
+    """ Yield successive n-sized chunks from list ls.
     """
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
+    for i in range(0, len(ls), n):
+        yield ls[i:i + n]
 
 
 def get_sha256sum(fileobj):
